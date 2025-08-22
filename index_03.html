@@ -337,7 +337,7 @@
 				method: 'PUT',
 				headers: {
 					'Content-Type': 'application/json',
-					'X-Master-Key': SECRET_KEY,
+					'X-Access-Key': SECRET_KEY,
 					'X-Bin-Private': 'false'
 				},
 				body: JSON.stringify({ modifiche: modifiedDaysDB })
@@ -356,7 +356,6 @@
 				console.error('Errore nel salvataggio dei dati:', error);
 			});
 		}
-
         // --- ELEMENTI DOM ---
         const monthSelect = document.getElementById('month-select');
         const yearSelect = document.getElementById('year-select');
