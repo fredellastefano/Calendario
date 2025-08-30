@@ -248,6 +248,121 @@
             background-color: #e74c3c;
             color: #fff;
         }
+
+        /* Stili per il modal di autenticazione */
+        .auth-modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(3px);
+        }
+
+        .auth-modal-content {
+            background-color: #fff;
+            margin: 15% auto;
+            padding: 30px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            position: relative;
+            animation: modalSlideIn 0.3s ease-out;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .auth-modal h2 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 25px;
+            font-size: 24px;
+        }
+
+        .auth-form-group {
+            margin-bottom: 20px;
+        }
+
+        .auth-form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #34495e;
+        }
+
+        .auth-form-group select,
+        .auth-form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #bdc3c7;
+            border-radius: 6px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+            box-sizing: border-box;
+        }
+
+        .auth-form-group select:focus,
+        .auth-form-group input:focus {
+            border-color: #3498db;
+            outline: none;
+        }
+
+        .auth-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 25px;
+        }
+
+        .auth-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .auth-btn-primary {
+            background-color: #3498db;
+            color: white;
+        }
+
+        .auth-btn-primary:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        .auth-btn-secondary {
+            background-color: #95a5a6;
+            color: white;
+        }
+
+        .auth-btn-secondary:hover {
+            background-color: #7f8c8d;
+        }
+
+        .auth-error {
+            color: #e74c3c;
+            text-align: center;
+            margin-top: 15px;
+            font-weight: bold;
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -283,6 +398,33 @@
         <div id="debug-status">Stato connessione: In attesa...</div>
     </div>
 
+    <!-- Modal di autenticazione -->
+    <div id="auth-modal" class="auth-modal">
+        <div class="auth-modal-content">
+            <h2>Autenticazione Utente</h2>
+            <form id="auth-form">
+                <div class="auth-form-group">
+                    <label for="user-select">Seleziona Utente:</label>
+                    <select id="user-select" required>
+                        <option value="">-- Scegli un utente --</option>
+                        <option value="chiara">Chiara</option>
+                        <option value="stefano">Stefano</option>
+                        <option value="guest">Altro utente</option>
+                    </select>
+                </div>
+                <div class="auth-form-group">
+                    <label for="password-input">Password:</label>
+                    <input type="password" id="password-input" placeholder="Inserisci la password" required>
+                </div>
+                <div class="auth-error" id="auth-error">Password non corretta!</div>
+                <div class="auth-buttons">
+                    <button type="submit" class="auth-btn auth-btn-primary">Accedi</button>
+                    <button type="button" class="auth-btn auth-btn-secondary" id="cancel-auth">Annulla</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
         // --- CONFIGURAZIONE JSONBIN.IO (MODIFICA CON LE TUE CHIAVI) ---
         const BIN_ID = '68a83cbbd0ea881f40602c74'; 
@@ -293,6 +435,21 @@
         
         const debugStatusEl = document.getElementById('debug-status');
 
+        // --- CONFIGURAZIONE UTENTI E PASSWORD ---
+        const userCredentials = {
+            'chiara': 'Chiara25',
+            'stefano': '$tefano',
+            'guest': 'Guest2025'
+        };
+
+        // --- ELEMENTI DOM MODAL ---
+        const authModal = document.getElementById('auth-modal');
+        const authForm = document.getElementById('auth-form');
+        const userSelect = document.getElementById('user-select');
+        const passwordInput = document.getElementById('password-input');
+        const authError = document.getElementById('auth-error');
+        const cancelAuthBtn = document.getElementById('cancel-auth');
+
         function setStatus(message, type = 'default') {
             debugStatusEl.textContent = `Stato connessione: ${message}`;
             debugStatusEl.className = '';
@@ -300,6 +457,70 @@
             if (type === 'warning') debugStatusEl.classList.add('status-warning');
             if (type === 'error') debugStatusEl.classList.add('status-error');
         }
+
+        // --- GESTIONE MODAL DI AUTENTICAZIONE ---
+        function showAuthModal() {
+            authModal.style.display = 'block';
+            userSelect.value = '';
+            passwordInput.value = '';
+            authError.style.display = 'none';
+            userSelect.focus();
+        }
+
+        function hideAuthModal() {
+            authModal.style.display = 'none';
+        }
+
+        function validateAuthentication() {
+            const selectedUser = userSelect.value;
+            const enteredPassword = passwordInput.value;
+            
+            if (!selectedUser) {
+                authError.textContent = 'Seleziona un utente!';
+                authError.style.display = 'block';
+                return false;
+            }
+            
+            if (userCredentials[selectedUser] === enteredPassword) {
+                return true;
+            } else {
+                authError.textContent = 'Password non corretta!';
+                authError.style.display = 'block';
+                passwordInput.value = '';
+                passwordInput.focus();
+                return false;
+            }
+        }
+
+        // --- GESTIONE EVENTI MODAL ---
+        authForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            if (validateAuthentication()) {
+                isModificationLocked = false;
+                updateModifyButtonAppearance();
+                renderCalendar();
+                hideAuthModal();
+                setStatus('Accesso autorizzato. Modifica calendario abilitata.', 'success');
+            }
+        });
+
+        cancelAuthBtn.addEventListener('click', () => {
+            hideAuthModal();
+        });
+
+        // Chiudi modal cliccando fuori
+        authModal.addEventListener('click', (e) => {
+            if (e.target === authModal) {
+                hideAuthModal();
+            }
+        });
+
+        // Chiudi modal con ESC
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && authModal.style.display === 'block') {
+                hideAuthModal();
+            }
+        });
 
         // --- GESTIONE DATI REMOTA ---
         function loadModifications() {
@@ -460,20 +681,29 @@
             return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
         }
 
-        // --- GESTIONE BLOCCO MODIFICHE ---
+        // --- GESTIONE BLOCCO MODIFICHE MODIFICATA ---
         function toggleModificationLock() {
-            isModificationLocked = !isModificationLocked;
-            updateModifyButtonAppearance();
-            renderCalendar();
+            if (!isModificationLocked) {
+                // Se già sbloccato, lo blocca direttamente
+                isModificationLocked = true;
+                updateModifyButtonAppearance();
+                renderCalendar();
+                setStatus('Modifica calendario disabilitata.', 'warning');
+            } else {
+                // Se bloccato, mostra il modal di autenticazione
+                showAuthModal();
+            }
         }
 
         function updateModifyButtonAppearance() {
             if (isModificationLocked) {
                 modifyBtn.classList.remove('unlocked');
                 modifyBtn.classList.add('locked');
+                modifyBtn.textContent = 'Abilita modifica calendario';
             } else {
                 modifyBtn.classList.remove('locked');
                 modifyBtn.classList.add('unlocked');
+                modifyBtn.textContent = 'Disabilita modifica calendario';
             }
         }
 
