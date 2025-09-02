@@ -43,10 +43,9 @@
         }
         
         .logo {
-            width: 250px;
-            height: 250px;
+            width: 200px;
+            height: 200px;
             border-radius: 8px;
-
         }
         
         .title-text {
@@ -448,6 +447,7 @@
 
         let modifiedDaysDB = {};
         let isModificationLocked = true;
+        let currentUser = null; // Utente attualmente autenticato
         
         const debugStatusEl = document.getElementById('debug-status');
 
@@ -456,6 +456,13 @@
             'chiara': 'Chiara25',
             'stefano': '$tefano',
             'guest': 'Guest2025'
+        };
+
+        // Mapping degli utenti alle loro iniziali
+        const userInitials = {
+            'chiara': 'C',
+            'stefano': 'S',
+            'guest': 'G'
         };
 
         // --- ELEMENTI DOM MODAL ---
@@ -498,6 +505,7 @@
             }
             
             if (userCredentials[selectedUser] === enteredPassword) {
+                currentUser = selectedUser; // Salva l'utente autenticato
                 return true;
             } else {
                 authError.textContent = 'Password non corretta!';
@@ -516,7 +524,7 @@
                 updateModifyButtonAppearance();
                 renderCalendar();
                 hideAuthModal();
-                setStatus('Accesso autorizzato. Modifica calendario abilitata.', 'success');
+                setStatus(`Accesso autorizzato per ${currentUser.charAt(0).toUpperCase() + currentUser.slice(1)}. Modifica calendario abilitata.`, 'success');
             }
         });
 
@@ -556,6 +564,15 @@
             .then(data => {
                 if (data && data.record && data.record.modifiche) {
                     modifiedDaysDB = data.record.modifiche;
+                    
+                    // Migrazione dei dati esistenti: aggiungi 'S' per Stefano ai giorni già modificati
+                    Object.keys(modifiedDaysDB).forEach(dateKey => {
+                        const entry = modifiedDaysDB[dateKey];
+                        if (entry && !entry.modifiedBy && entry.modified) {
+                            entry.modifiedBy = 'S'; // Assegna 'S' per Stefano ai giorni già modificati
+                        }
+                    });
+                    
                     setStatus('Dati caricati con successo da JSONBin.io.', 'success');
                 } else {
                     modifiedDaysDB = {};
@@ -659,6 +676,29 @@
                 const dayNote = document.createElement('div');
                 dayNote.className = 'day-note';
                 
+                // Aggiungi l'iniziale dell'utente se il giorno è stato modificato
+                const userInitial = document.createElement('span');
+                userInitial.className = 'user-initial';
+                if (dbEntry?.modified && dbEntry?.modifiedBy) {
+                    userInitial.textContent = dbEntry.modifiedBy;
+                    userInitial.style.cssText = `
+                        position: absolute;
+                        top: 5px;
+                        right: 5px;
+                        font-size: 12px;
+                        font-weight: bold;
+                        background-color: rgba(255, 255, 255, 0.8);
+                        border-radius: 50%;
+                        width: 18px;
+                        height: 18px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        color: #333;
+                        border: 1px solid #666;
+                    `;
+                }
+                
                 const dayOptions = document.createElement('span');
                 dayOptions.className = 'day-options';
                 dayOptions.innerHTML = '&hellip;';
@@ -668,7 +708,7 @@
                     handleNoteEdit(dateKey);
                 });
 
-                dayCell.append(dayNumber, dayNote, dayOptions);
+                dayCell.append(dayNumber, dayNote, userInitial, dayOptions);
 
                 const defaultColor = getDefaultColor(currentDate);
                 const isModified = dbEntry?.modified ?? false;
@@ -702,6 +742,7 @@
             if (!isModificationLocked) {
                 // Se già sbloccato, lo blocca direttamente
                 isModificationLocked = true;
+                currentUser = null; // Reset dell'utente
                 updateModifyButtonAppearance();
                 renderCalendar();
                 setStatus('Modifica calendario disabilitata.', 'warning');
@@ -732,12 +773,21 @@
         }
 
         function toggleDayColor(dateKey) {
-            if (isModificationLocked) return;
+            if (isModificationLocked || !currentUser) return;
             
             if (!modifiedDaysDB[dateKey]) {
-                modifiedDaysDB[dateKey] = { modified: true, note: "" };
+                modifiedDaysDB[dateKey] = { 
+                    modified: true, 
+                    note: "",
+                    modifiedBy: userInitials[currentUser]
+                };
             } else {
                 modifiedDaysDB[dateKey].modified = !modifiedDaysDB[dateKey].modified;
+                if (modifiedDaysDB[dateKey].modified) {
+                    modifiedDaysDB[dateKey].modifiedBy = userInitials[currentUser];
+                } else {
+                    delete modifiedDaysDB[dateKey].modifiedBy;
+                }
             }
             cleanupEntry(dateKey);
             saveModifications();
@@ -751,9 +801,16 @@
             if (newNote !== null) {
                 const trimmedNote = newNote.trim();
                 if (!modifiedDaysDB[dateKey]) {
-                    modifiedDaysDB[dateKey] = { modified: false, note: trimmedNote };
+                    modifiedDaysDB[dateKey] = { 
+                        modified: false, 
+                        note: trimmedNote,
+                        modifiedBy: currentUser ? userInitials[currentUser] : null
+                    };
                 } else {
                     modifiedDaysDB[dateKey].note = trimmedNote;
+                    if (!modifiedDaysDB[dateKey].modifiedBy && currentUser) {
+                        modifiedDaysDB[dateKey].modifiedBy = userInitials[currentUser];
+                    }
                 }
                 cleanupEntry(dateKey);
                 saveModifications();
@@ -786,13 +843,14 @@
             const modifiedDates = Object.keys(modifiedDaysDB).sort();
             if (modifiedDates.length === 0) return alert("Nessun dato da salvare.");
 
-            let csvContent = "date,is_modified,note\r\n";
+            let csvContent = "date,is_modified,note,modified_by\r\n";
             modifiedDates.forEach(dateKey => {
                 const entry = modifiedDaysDB[dateKey];
                 const isModified = entry.modified ? '1' : '0';
                 let note = entry.note || '';
                 const safeNote = `"${note.replace(/"/g, '""')}"`;
-                csvContent += `${dateKey},${isModified},${safeNote}\r\n`;
+                const modifiedBy = entry.modifiedBy || '';
+                csvContent += `${dateKey},${isModified},${safeNote},${modifiedBy}\r\n`;
             });
 
             const link = document.createElement("a");
@@ -810,23 +868,43 @@
                 const text = e.target.result;
                 const rows = text.split('\n').map(r => r.trim()).filter(r => r);
 
-                if (rows.length < 1 || !rows[0].toLowerCase().startsWith('date,is_modified,note')) {
-                    return alert("File CSV non valido. L'intestazione deve essere 'date,is_modified,note'.");
+                if (rows.length < 1) {
+                    return alert("File CSV vuoto o non valido.");
                 }
+                
+                // Controllo header flessibile per supportare sia il vecchio che il nuovo formato
+                const header = rows[0].toLowerCase();
+                const hasModifiedBy = header.includes('modified_by');
                 
                 const newModifiedDays = {};
                 try {
                     for (let i = 1; i < rows.length; i++) {
-                        const [date, isModified, ...noteParts] = rows[i].split(',');
-                        let note = noteParts.join(',');
-
+                        const parts = rows[i].split(',');
+                        const date = parts[0];
+                        const isModified = parts[1];
+                        
                         if (/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+                            let note, modifiedBy;
+                            
+                            if (hasModifiedBy) {
+                                // Nuovo formato con modified_by
+                                const noteParts = parts.slice(2, -1);
+                                note = noteParts.join(',');
+                                modifiedBy = parts[parts.length - 1];
+                            } else {
+                                // Vecchio formato senza modified_by
+                                note = parts.slice(2).join(',');
+                                modifiedBy = 'S'; // Default per Stefano
+                            }
+                            
                             if (note.startsWith('"') && note.endsWith('"')) {
                                note = note.slice(1, -1).replace(/""/g, '"');
                             }
+                            
                             newModifiedDays[date] = {
                                 modified: isModified === '1',
-                                note: note
+                                note: note,
+                                modifiedBy: modifiedBy
                             };
                         }
                     }
