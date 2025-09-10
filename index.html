@@ -34,23 +34,32 @@
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
+            gap: 10px;
         }
         
         .logo-container {
-            width: 140px;
+            flex: 0 0 auto;
             display: flex;
             align-items: flex-start;
+            max-width: 25%;
         }
         
         .logo {
-            width: 200px;
-            height: 200px;
+            width: 100%;
+            height: auto;
+            max-width: 200px;
+            min-width: 80px;
             border-radius: 8px;
+            object-fit: contain;
         }
         
         .title-text {
             flex: 1;
             text-align: center;
+            min-width: 0;
+            padding: 0 10px;
+            font-size: clamp(1.2rem, 4vw, 2rem);
+            line-height: 1.2;
         }
         
         .header-controls { 
@@ -75,32 +84,39 @@
             flex-direction: column;
             gap: 8px;
             align-items: center;
+            flex: 0 0 auto;
+            max-width: 25%;
         }
         
         .legend-row {
             display: flex;
             gap: 8px;
+            flex-wrap: wrap;
+            justify-content: center;
         }
         
         .legend-btn {
             padding: 6px 12px;
-            font-size: 13px;
+            font-size: clamp(10px, 2vw, 13px);
             font-weight: bold;
             border: 1px solid #333;
             border-radius: 4px;
             cursor: default;
             user-select: none;
+            white-space: nowrap;
         }
         
         .modify-btn {
             padding: 6px 12px;
-            font-size: 11px;
+            font-size: clamp(9px, 1.5vw, 11px);
             font-weight: bold;
             border: 1px solid #666;
             border-radius: 4px;
             cursor: pointer;
             user-select: none;
             transition: background-color 0.2s;
+            text-align: center;
+            white-space: nowrap;
         }
         
         .modify-btn.locked {
@@ -121,17 +137,20 @@
             display: flex;
             flex-direction: column;
             gap: 5px;
+            width: 100%;
         }
         
         .csv-btn {
             padding: 6px 12px;
-            font-size: 12px;
+            font-size: clamp(10px, 2vw, 12px);
             font-weight: bold;
             border: 1px solid #333;
             border-radius: 4px;
             cursor: pointer;
             transition: opacity 0.2s;
             color: #333;
+            text-align: center;
+            white-space: nowrap;
         }
         
         .csv-btn:hover {
@@ -157,6 +176,68 @@
             color: #fff;
         }
         
+        /* Media queries per dispositivi mobili */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            .calendar-container {
+                padding: 15px;
+            }
+            
+            h1 {
+                flex-direction: column;
+                align-items: center;
+                gap: 15px;
+            }
+            
+            .logo-container {
+                order: 1;
+                max-width: 150px;
+            }
+            
+            .title-text {
+                order: 2;
+                padding: 0;
+            }
+            
+            .legend-controls {
+                order: 3;
+                max-width: 100%;
+                width: 100%;
+            }
+            
+            .legend-row {
+                gap: 5px;
+            }
+            
+            .csv-controls {
+                flex-direction: row;
+                gap: 8px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .logo-container {
+                max-width: 120px;
+            }
+            
+            .legend-btn {
+                padding: 4px 8px;
+            }
+            
+            .modify-btn {
+                padding: 4px 8px;
+                font-size: 10px;
+            }
+            
+            .csv-btn {
+                padding: 4px 8px;
+                font-size: 10px;
+            }
+        }
+
         .io-controls { 
             display: none;
         }
@@ -173,20 +254,39 @@
             align-items: center; 
             gap: 15px; 
             margin-bottom: 25px; 
+            flex-wrap: wrap;
         }
 
-        .controls select { padding: 8px 12px; font-size: 16px; border: 1px solid #ccc; border-radius: 6px; }
+        .controls select { 
+            padding: 8px 12px; 
+            font-size: clamp(14px, 2.5vw, 16px); 
+            border: 1px solid #ccc; 
+            border-radius: 6px; 
+        }
 
         .controls button {
-            padding: 6px 14px; font-size: 20px; font-weight: bold; border: 1px solid #ccc;
-            border-radius: 6px; background-color: #f8f9fa; cursor: pointer;
-            transition: background-color 0.2s; line-height: 1.5;
+            padding: 6px 14px; 
+            font-size: clamp(16px, 3vw, 20px); 
+            font-weight: bold; 
+            border: 1px solid #ccc;
+            border-radius: 6px; 
+            background-color: #f8f9fa; 
+            cursor: pointer;
+            transition: background-color 0.2s; 
+            line-height: 1.5;
         }
         .controls button:hover { background-color: #e9ecef; }
 
         .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
 
-        .day-header { font-weight: bold; text-align: center; padding: 10px 0; background-color: #ecf0f1; border-radius: 4px; }
+        .day-header { 
+            font-weight: bold; 
+            text-align: center; 
+            padding: 10px 0; 
+            background-color: #ecf0f1; 
+            border-radius: 4px; 
+            font-size: clamp(12px, 2vw, 16px);
+        }
 
         .day-cell {
             position: relative;
@@ -201,14 +301,21 @@
 
         .day-cell:hover { transform: translateY(-3px); box-shadow: 0 4px 8px rgba(0,0,0,0.15); }
 
-        .day-number { position: absolute; top: 5px; left: 5px; font-size: 14px; font-weight: bold; z-index: 1; }
+        .day-number { 
+            position: absolute; 
+            top: 5px; 
+            left: 5px; 
+            font-size: clamp(12px, 2.5vw, 14px); 
+            font-weight: bold; 
+            z-index: 1; 
+        }
 
         .day-note {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            font-size: 16px;
+            font-size: clamp(12px, 2.5vw, 16px);
             font-weight: bold;
             text-align: center;
             overflow: hidden;
@@ -227,7 +334,7 @@
             bottom: 3px;
             right: 5px;
             cursor: pointer;
-            font-size: 16px;
+            font-size: clamp(14px, 2.5vw, 16px);
             font-weight: bold;
             color: rgba(0,0,0,0.4);
             z-index: 2;
@@ -242,7 +349,7 @@
             padding: 10px;
             border-radius: 6px;
             text-align: center;
-            font-size: 14px;
+            font-size: clamp(12px, 2vw, 14px);
             font-weight: bold;
             transition: background-color 0.3s ease;
         }
@@ -302,7 +409,7 @@
             text-align: center;
             color: #2c3e50;
             margin-bottom: 25px;
-            font-size: 24px;
+            font-size: clamp(20px, 4vw, 24px);
         }
 
         .auth-form-group {
@@ -314,6 +421,7 @@
             margin-bottom: 8px;
             font-weight: bold;
             color: #34495e;
+            font-size: clamp(14px, 2.5vw, 16px);
         }
 
         .auth-form-group select,
@@ -322,7 +430,7 @@
             padding: 12px;
             border: 2px solid #bdc3c7;
             border-radius: 6px;
-            font-size: 16px;
+            font-size: clamp(14px, 2.5vw, 16px);
             transition: border-color 0.3s ease;
             box-sizing: border-box;
         }
@@ -338,13 +446,14 @@
             gap: 10px;
             justify-content: center;
             margin-top: 25px;
+            flex-wrap: wrap;
         }
 
         .auth-btn {
             padding: 12px 24px;
             border: none;
             border-radius: 6px;
-            font-size: 16px;
+            font-size: clamp(14px, 2.5vw, 16px);
             font-weight: bold;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -375,6 +484,7 @@
             margin-top: 15px;
             font-weight: bold;
             display: none;
+            font-size: clamp(12px, 2vw, 14px);
         }
     </style>
 </head>
@@ -922,4 +1032,3 @@
     </script> 
 </body>
 </html>
-
