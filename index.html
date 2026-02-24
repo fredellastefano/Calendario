@@ -188,8 +188,10 @@
             user-select: none;
             white-space: nowrap;
         }
-        .legend-yellow { background-color: #f1c40f; color: #1a1500; }
-        .legend-red    { background-color: #e03030; color: #fff; }
+        [data-theme="dark"]  .legend-yellow { background-color: #3a2e00; color: #f5d140; border: 1px solid #4a3c00; }
+        [data-theme="dark"]  .legend-red    { background-color: #2a0a0a; color: #ff8a8a; border: 1px solid #3d1010; }
+        [data-theme="light"] .legend-yellow { background-color: #f1c40f; color: #1a1200; border: 1px solid #c8a000; }
+        [data-theme="light"] .legend-red    { background-color: #e74c3c; color: #fff;    border: 1px solid #a93226; }
 
         .modify-btn {
             padding: 6px 14px;
