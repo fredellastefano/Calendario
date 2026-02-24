@@ -1,84 +1,170 @@
 <!DOCTYPE html>
-<html lang="it">
+<html lang="it" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calendario Interattivo con Note</title>
     <link rel="icon" type="image/png" href="MaxAndStar.png">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
     <style>
+        /* ===== DARK THEME ===== */
+        [data-theme="dark"] {
+            --bg-base:        #0e0f12;
+            --bg-surface:     #16181e;
+            --bg-raised:      #1e2028;
+            --bg-hover:       #252830;
+            --border:         #2e313d;
+            --border-focus:   #4a5568;
+            --text-primary:   #e8eaf0;
+            --text-secondary: #8890a6;
+            --text-muted:     #4a5060;
+            --accent-blue:    #4f7ef7;
+            --accent-blue-h:  #3a6ce8;
+            --accent-shadow:  rgba(79,126,247,0.25);
+            --success-bg:     rgba(45,216,140,0.10);
+            --success-border: rgba(45,216,140,0.30);
+            --success-text:   #2dd88c;
+            --warning-bg:     rgba(241,196,15,0.10);
+            --warning-border: rgba(241,196,15,0.30);
+            --warning-text:   #f1c40f;
+            --error-bg:       rgba(224,48,48,0.10);
+            --error-border:   rgba(224,48,48,0.30);
+            --error-text:     #ff6b6b;
+            --modal-overlay:  rgba(0,0,0,0.75);
+            --shadow-lg:      0 12px 48px rgba(0,0,0,0.65);
+            --bg-gradient:    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(79,126,247,0.08) 0%, transparent 70%),
+                              radial-gradient(ellipse 40% 30% at 80% 90%, rgba(241,196,15,0.04) 0%, transparent 60%);
+            --select-arrow:   url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238890a6' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+            --user-badge-bg:  rgba(0,0,0,0.35);
+            --user-badge-c:   rgba(255,255,255,0.70);
+            --user-badge-b:   rgba(255,255,255,0.20);
+        }
+
+        /* ===== LIGHT THEME ===== */
+        [data-theme="light"] {
+            --bg-base:        #f0f2f5;
+            --bg-surface:     #ffffff;
+            --bg-raised:      #f8f9fa;
+            --bg-hover:       #edf0f3;
+            --border:         #d4d8e0;
+            --border-focus:   #7b8fa6;
+            --text-primary:   #1a1e2c;
+            --text-secondary: #5a6478;
+            --text-muted:     #9aa0b0;
+            --accent-blue:    #2c5fe0;
+            --accent-blue-h:  #1e4ec8;
+            --accent-shadow:  rgba(44,95,224,0.20);
+            --success-bg:     rgba(39,174,96,0.10);
+            --success-border: rgba(39,174,96,0.35);
+            --success-text:   #1a7a48;
+            --warning-bg:     rgba(200,160,0,0.10);
+            --warning-border: rgba(200,160,0,0.35);
+            --warning-text:   #7a5c00;
+            --error-bg:       rgba(192,57,43,0.08);
+            --error-border:   rgba(192,57,43,0.30);
+            --error-text:     #b02020;
+            --modal-overlay:  rgba(0,0,0,0.45);
+            --shadow-lg:      0 8px 32px rgba(0,0,0,0.12);
+            --bg-gradient:    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(44,95,224,0.05) 0%, transparent 70%);
+            --select-arrow:   url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%235a6478' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+            --user-badge-bg:  rgba(255,255,255,0.80);
+            --user-badge-c:   #333;
+            --user-badge-b:   rgba(0,0,0,0.20);
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: #f0f0f0;
-            color: #333;
+            font-family: 'DM Mono', monospace;
+            background-color: var(--bg-base);
+            background-image: var(--bg-gradient);
+            color: var(--text-primary);
             display: flex;
             justify-content: center;
             align-items: flex-start;
-            padding: 20px;
+            padding: 24px 16px;
             min-height: 100vh;
-            margin: 0;
+            transition: background-color 0.3s, color 0.3s;
         }
 
         .calendar-container {
-            width: 95%;
+            width: 100%;
             max-width: 1100px;
-            background-color: #fff;
-            padding: 25px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            background-color: var(--bg-surface);
+            border: 1px solid var(--border);
+            padding: 28px;
+            border-radius: 16px;
+            box-shadow: var(--shadow-lg);
+            position: relative;
+            transition: background-color 0.3s, border-color 0.3s, box-shadow 0.3s;
         }
-        
-        h1 { 
-            text-align: center; 
-            color: #2c3e50; 
-            margin-bottom: 10px; 
+
+        /* ===== TOGGLE BUTTON ===== */
+        #theme-toggle {
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 1px solid var(--border);
+            background-color: var(--bg-raised);
+            font-size: 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            z-index: 10;
+            padding: 0;
+            line-height: 1;
+        }
+        #theme-toggle:hover {
+            background-color: var(--bg-hover);
+            border-color: var(--border-focus);
+            transform: scale(1.12);
+        }
+
+        /* ===== HEADER ===== */
+        h1 {
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            gap: 10px;
+            gap: 16px;
+            margin-bottom: 14px;
+            padding-right: 44px;
         }
-        
+
         .logo-container {
             flex: 0 0 auto;
             display: flex;
             align-items: flex-start;
-            max-width: 25%;
+            max-width: 22%;
         }
-        
+
         .logo {
             width: 100%;
             height: auto;
             max-width: 200px;
             min-width: 80px;
-            border-radius: 8px;
+            border-radius: 10px;
             object-fit: contain;
         }
-        
+
         .title-text {
             flex: 1;
             text-align: center;
-            min-width: 0;
-            padding: 0 10px;
-            font-size: clamp(1.2rem, 4vw, 2rem);
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(1.1rem, 3.2vw, 1.85rem);
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: -0.01em;
             line-height: 1.2;
-        }
-        
-        .header-controls { 
-            display: flex; 
-            gap: 10px; 
+            padding: 0 12px;
+            text-shadow: 0 0 40px var(--accent-shadow);
+            transition: color 0.3s;
         }
 
-        .header-controls button {
-            padding: 8px 15px; 
-            font-size: 14px; 
-            border: 1px solid #2980b9; 
-            background-color: #3498db;
-            color: white; 
-            border-radius: 5px; 
-            cursor: pointer; 
-            transition: background-color 0.2s;
-        }
-        .header-controls button:hover { background-color: #2980b9; }
-        
         .legend-controls {
             display: flex;
             flex-direction: column;
@@ -87,180 +173,165 @@
             flex: 0 0 auto;
             max-width: 25%;
         }
-        
-        .legend-row {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-        
+
+        .legend-row { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+
         .legend-btn {
-            padding: 6px 12px;
-            font-size: clamp(10px, 2vw, 13px);
-            font-weight: bold;
-            border: 1px solid #333;
-            border-radius: 4px;
+            padding: 5px 14px;
+            font-family: 'DM Mono', monospace;
+            font-size: clamp(10px, 1.8vw, 12px);
+            font-weight: 500;
+            border: none;
+            border-radius: 5px;
             cursor: default;
             user-select: none;
             white-space: nowrap;
         }
-        
+        .legend-yellow { background-color: #f1c40f; color: #1a1500; }
+        .legend-red    { background-color: #e03030; color: #fff; }
+
         .modify-btn {
-            padding: 6px 12px;
-            font-size: clamp(9px, 1.5vw, 11px);
-            font-weight: bold;
-            border: 1px solid #666;
-            border-radius: 4px;
+            padding: 6px 14px;
+            font-family: 'DM Mono', monospace;
+            font-size: clamp(9px, 1.4vw, 11px);
+            font-weight: 500;
+            border: 1px solid var(--border);
+            border-radius: 6px;
             cursor: pointer;
             user-select: none;
-            transition: background-color 0.2s;
-            text-align: center;
+            transition: all 0.2s;
             white-space: nowrap;
         }
-        
         .modify-btn.locked {
-            background-color: #95a5a6;
-            color: #fff;
+            background-color: var(--bg-raised);
+            color: var(--text-secondary);
+            border-color: var(--border);
         }
-        
+        .modify-btn.locked:hover { background-color: var(--bg-hover); color: var(--text-primary); border-color: var(--border-focus); }
         .modify-btn.unlocked {
-            background-color: #e74c3c;
-            color: #fff;
+            background-color: var(--error-bg);
+            color: var(--error-text);
+            border-color: var(--error-border);
         }
-        
-        .modify-btn:hover {
-            opacity: 0.8;
-        }
-        
-        .csv-controls {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-            width: 100%;
-        }
-        
+        .modify-btn.unlocked:hover { opacity: 0.8; }
+
+        .csv-controls { display: flex; flex-direction: column; gap: 5px; width: 100%; }
+
         .csv-btn {
-            padding: 6px 12px;
-            font-size: clamp(10px, 2vw, 12px);
-            font-weight: bold;
-            border: 1px solid #333;
-            border-radius: 4px;
+            padding: 5px 12px;
+            font-family: 'DM Mono', monospace;
+            font-size: clamp(9px, 1.5vw, 11px);
+            font-weight: 500;
+            border-radius: 5px;
             cursor: pointer;
-            transition: opacity 0.2s;
-            color: #333;
+            transition: all 0.2s;
             text-align: center;
             white-space: nowrap;
         }
-        
-        .csv-btn:hover {
-            opacity: 0.8;
-        }
-        
-        .download-btn {
-            background-color: #f1c40f;
-        }
-        
-        .upload-btn {
-            background-color: #e74c3c;
-            color: #fff;
-        }
-        
-        .legend-yellow {
-            background-color: #f1c40f;
-            color: #333;
-        }
-        
-        .legend-red {
-            background-color: #e74c3c;
-            color: #fff;
-        }
-        
-        /* Media queries per dispositivi mobili */
-        @media (max-width: 768px) {
-            body { padding: 10px; }
-            .calendar-container { padding: 15px; }
-            h1 {
-                flex-direction: column;
-                align-items: center;
-                gap: 15px;
-            }
-            .logo-container { order: 1; max-width: 150px; }
-            .title-text { order: 2; padding: 0; }
-            .legend-controls { order: 3; max-width: 100%; width: 100%; }
-            .legend-row { gap: 5px; }
-            .csv-controls { flex-direction: row; gap: 8px; }
-        }
-        
-        @media (max-width: 480px) {
-            .logo-container { max-width: 120px; }
-            .legend-btn { padding: 4px 8px; }
-            .modify-btn { padding: 4px 8px; font-size: 10px; }
-            .csv-btn { padding: 4px 8px; font-size: 10px; }
+        .download-btn { background-color: var(--warning-bg); color: var(--warning-text); border: 1px solid var(--warning-border); }
+        .download-btn:hover { opacity: 0.75; }
+        .upload-btn { background-color: var(--error-bg); color: var(--error-text); border: 1px solid var(--error-border); }
+        .upload-btn:hover { opacity: 0.75; }
+
+        .header-divider {
+            border: none;
+            border-top: 1px solid var(--border);
+            margin: 16px 0 20px;
+            transition: border-color 0.3s;
         }
 
-        .io-controls { display: none; }
-
-        .controls { 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            gap: 15px; 
-            margin-bottom: 25px; 
+        /* ===== CONTROLS ===== */
+        .controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 22px;
             flex-wrap: wrap;
         }
 
-        .controls select { 
-            padding: 8px 12px; 
-            font-size: clamp(14px, 2.5vw, 16px); 
-            border: 1px solid #ccc; 
-            border-radius: 6px; 
+        .controls select {
+            padding: 8px 32px 8px 14px;
+            font-family: 'DM Mono', monospace;
+            font-size: clamp(13px, 2vw, 15px);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background-color: var(--bg-raised);
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.2s;
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: var(--select-arrow);
+            background-repeat: no-repeat;
+            background-position: right 10px center;
         }
+        .controls select:focus { outline: none; border-color: var(--accent-blue); background-color: var(--bg-hover); }
 
         .controls button {
-            padding: 6px 14px; 
-            font-size: clamp(16px, 3vw, 20px); 
-            font-weight: bold; 
-            border: 1px solid #ccc;
-            border-radius: 6px; 
-            background-color: #f8f9fa; 
+            padding: 7px 16px;
+            font-size: 18px;
+            font-weight: bold;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background-color: var(--bg-raised);
+            color: var(--text-secondary);
             cursor: pointer;
-            transition: background-color 0.2s; 
-            line-height: 1.5;
+            transition: all 0.2s;
+            line-height: 1.4;
         }
-        .controls button:hover { background-color: #e9ecef; }
+        .controls button:hover { background-color: var(--bg-hover); color: var(--text-primary); border-color: var(--border-focus); }
 
-        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
+        /* ===== CALENDAR GRID ===== */
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
 
-        .day-header { 
-            font-weight: bold; 
-            text-align: center; 
-            padding: 10px 0; 
-            background-color: #ecf0f1; 
-            border-radius: 4px; 
-            font-size: clamp(12px, 2vw, 16px);
+        .day-header {
+            font-family: 'DM Mono', monospace;
+            font-size: clamp(10px, 1.6vw, 13px);
+            font-weight: 500;
+            text-align: center;
+            padding: 10px 0;
+            color: var(--text-muted);
+            background-color: var(--bg-raised);
+            border-radius: 6px;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            border: 1px solid var(--border);
+            transition: background-color 0.3s, border-color 0.3s;
         }
 
         .day-cell {
             position: relative;
             height: 0;
             padding-bottom: 76.5%;
-            border: 1px solid #ddd;
-            border-radius: 6px;
+            border: 1px solid transparent;
+            border-radius: 8px;
             cursor: pointer;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
             overflow: hidden;
+            transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease, background-color 0.3s;
+        }
+        .day-cell:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.2); }
+
+        .day-number {
+            position: absolute;
+            top: 6px;
+            left: 7px;
+            font-family: 'DM Mono', monospace;
+            font-size: clamp(11px, 2vw, 13px);
+            font-weight: 500;
+            z-index: 1;
         }
 
-        .day-cell:hover { transform: translateY(-3px); box-shadow: 0 4px 8px rgba(0,0,0,0.15); }
-
-        .day-number { 
-            position: absolute; 
-            top: 5px; 
-            left: 5px; 
-            font-size: clamp(12px, 2.5vw, 14px); 
-            font-weight: bold; 
-            z-index: 1; 
+        .day-number.today-marker {
+            background-color: var(--accent-blue);
+            color: #fff !important;
+            border-radius: 50%;
+            width: 22px;
+            height: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: clamp(10px, 1.8vw, 12px);
         }
 
         .day-note {
@@ -268,8 +339,9 @@
             top: 45%;
             left: 50%;
             transform: translate(-50%, -50%);
-            font-size: clamp(10px, 2vw, 13px);
-            font-weight: bold;
+            font-family: 'DM Mono', monospace;
+            font-size: clamp(9px, 1.7vw, 11px);
+            font-weight: 500;
             text-align: center;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -282,268 +354,245 @@
             justify-content: center;
         }
 
-        /* Orario visualizzato nella cella */
         .day-time {
             position: absolute;
             bottom: 18px;
             left: 50%;
             transform: translateX(-50%);
-            font-size: clamp(9px, 1.6vw, 11px);
-            font-weight: bold;
+            font-family: 'DM Mono', monospace;
+            font-size: clamp(8px, 1.4vw, 10px);
+            font-weight: 400;
             white-space: nowrap;
-            opacity: 0.85;
-            background-color: rgba(255,255,255,0.45);
+            opacity: 0.75;
             border-radius: 3px;
-            padding: 1px 4px;
+            padding: 1px 5px;
         }
+        [data-theme="dark"]  .day-time { background-color: rgba(0,0,0,0.25); }
+        [data-theme="light"] .day-time { background-color: rgba(0,0,0,0.07); }
 
         .day-options {
             position: absolute;
             bottom: 3px;
-            right: 5px;
+            right: 6px;
             cursor: pointer;
-            font-size: clamp(14px, 2.5vw, 16px);
+            font-size: clamp(13px, 2vw, 15px);
             font-weight: bold;
-            color: rgba(0,0,0,0.4);
             z-index: 2;
+            transition: color 0.15s;
         }
-        .day-options:hover { color: rgba(0,0,0,0.8); }
+        [data-theme="dark"]  .day-options { color: rgba(255,255,255,0.30); }
+        [data-theme="light"] .day-options { color: rgba(0,0,0,0.25); }
+        [data-theme="dark"]  .day-options:hover { color: rgba(255,255,255,0.85); }
+        [data-theme="light"] .day-options:hover { color: rgba(0,0,0,0.70); }
 
-        .day-yellow { background-color: #f1c40f; color: #333; }
-        .day-red { background-color: #e74c3c; color: #fff; }
+        /* ===== CELL COLORS — DARK ===== */
+        [data-theme="dark"] .day-yellow {
+            background: linear-gradient(135deg, #3a2e00, #2c2200);
+            color: #f5d140;
+            border-color: #4a3c00;
+        }
+        [data-theme="dark"] .day-yellow:hover { background: linear-gradient(135deg, #4a3c00, #3a2e00); border-color: #6a5500; }
+        [data-theme="dark"] .day-red {
+            background: linear-gradient(135deg, #2a0a0a, #1e0707);
+            color: #ff8a8a;
+            border-color: #3d1010;
+        }
+        [data-theme="dark"] .day-red:hover { background: linear-gradient(135deg, #3d1010, #2a0a0a); border-color: #5a1a1a; }
 
+        /* ===== CELL COLORS — LIGHT ===== */
+        [data-theme="light"] .day-yellow {
+            background: linear-gradient(135deg, #f1c40f, #e0b000);
+            color: #1a1200;
+            border-color: #c8a000;
+        }
+        [data-theme="light"] .day-yellow:hover { background: linear-gradient(135deg, #f5ce30, #f1c40f); border-color: #a88000; }
+        [data-theme="light"] .day-red {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: #fff;
+            border-color: #a93226;
+        }
+        [data-theme="light"] .day-red:hover { background: linear-gradient(135deg, #ec6050, #e74c3c); border-color: #922b21; }
+
+        /* ===== STATUS BAR ===== */
         #debug-status {
             margin-top: 20px;
-            padding: 10px;
-            border-radius: 6px;
+            padding: 10px 16px;
+            border-radius: 8px;
             text-align: center;
-            font-size: clamp(12px, 2vw, 14px);
-            font-weight: bold;
-            transition: background-color 0.3s ease;
+            font-family: 'DM Mono', monospace;
+            font-size: clamp(11px, 1.8vw, 13px);
+            letter-spacing: 0.03em;
+            transition: all 0.3s ease;
+            border: 1px solid var(--border);
+            background-color: var(--bg-raised);
+            color: var(--text-muted);
         }
+        .status-success { background-color: var(--success-bg) !important; border-color: var(--success-border) !important; color: var(--success-text) !important; }
+        .status-warning { background-color: var(--warning-bg) !important; border-color: var(--warning-border) !important; color: var(--warning-text) !important; }
+        .status-error   { background-color: var(--error-bg)   !important; border-color: var(--error-border)   !important; color: var(--error-text)   !important; }
 
-        .status-success { background-color: #2ecc71; color: #fff; }
-        .status-warning { background-color: #f1c40f; color: #333; }
-        .status-error { background-color: #e74c3c; color: #fff; }
-
-        /* ===== MODAL AUTENTICAZIONE ===== */
-        .auth-modal {
+        /* ===== MODALS ===== */
+        .auth-modal, .note-modal {
             display: none;
             position: fixed;
             z-index: 1000;
             left: 0; top: 0;
             width: 100%; height: 100%;
-            background-color: rgba(0,0,0,0.5);
-            backdrop-filter: blur(3px);
+            background-color: var(--modal-overlay);
+            backdrop-filter: blur(6px);
         }
 
-        .auth-modal-content {
-            background-color: #fff;
-            margin: 15% auto;
-            padding: 30px;
-            border-radius: 12px;
+        .auth-modal-content, .note-modal-content {
+            background-color: var(--bg-surface);
+            border: 1px solid var(--border);
+            margin: 12% auto;
+            padding: 34px;
+            border-radius: 14px;
             width: 90%;
-            max-width: 400px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-            animation: modalSlideIn 0.3s ease-out;
+            max-width: 420px;
+            box-shadow: var(--shadow-lg);
+            animation: modalSlideIn 0.28s cubic-bezier(0.34,1.2,0.64,1);
+            transition: background-color 0.3s, border-color 0.3s;
         }
+        .note-modal-content { max-width: 480px; margin: 8% auto; }
 
         @keyframes modalSlideIn {
-            from { opacity: 0; transform: translateY(-50px); }
-            to   { opacity: 1; transform: translateY(0); }
+            from { opacity:0; transform:translateY(-30px) scale(0.97); }
+            to   { opacity:1; transform:translateY(0) scale(1); }
         }
 
-        .auth-modal h2 {
+        .auth-modal-content h2, .note-modal-content h2 {
             text-align: center;
-            color: #2c3e50;
-            margin-bottom: 25px;
-            font-size: clamp(20px, 4vw, 24px);
-        }
-
-        .auth-form-group { margin-bottom: 20px; }
-
-        .auth-form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: bold;
-            color: #34495e;
-            font-size: clamp(14px, 2.5vw, 16px);
-        }
-
-        .auth-form-group select,
-        .auth-form-group input {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #bdc3c7;
-            border-radius: 6px;
-            font-size: clamp(14px, 2.5vw, 16px);
-            transition: border-color 0.3s ease;
-            box-sizing: border-box;
-        }
-
-        .auth-form-group select:focus,
-        .auth-form-group input:focus { border-color: #3498db; outline: none; }
-
-        .auth-buttons {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            margin-top: 25px;
-            flex-wrap: wrap;
-        }
-
-        .auth-btn {
-            padding: 12px 24px;
-            border: none;
-            border-radius: 6px;
-            font-size: clamp(14px, 2.5vw, 16px);
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .auth-btn-primary { background-color: #3498db; color: white; }
-        .auth-btn-primary:hover { background-color: #2980b9; transform: translateY(-2px); }
-        .auth-btn-secondary { background-color: #95a5a6; color: white; }
-        .auth-btn-secondary:hover { background-color: #7f8c8d; }
-
-        .auth-error {
-            color: #e74c3c;
-            text-align: center;
-            margin-top: 15px;
-            font-weight: bold;
-            display: none;
-            font-size: clamp(12px, 2vw, 14px);
-        }
-
-        /* ===== MODAL NOTA / ORARIO ===== */
-        .note-modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0; top: 0;
-            width: 100%; height: 100%;
-            background-color: rgba(0,0,0,0.5);
-            backdrop-filter: blur(3px);
-        }
-
-        .note-modal-content {
-            background-color: #fff;
-            margin: 10% auto;
-            padding: 30px;
-            border-radius: 12px;
-            width: 90%;
-            max-width: 460px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-            animation: modalSlideIn 0.3s ease-out;
-        }
-
-        .note-modal-content h2 {
-            text-align: center;
-            color: #2c3e50;
-            margin-bottom: 22px;
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 24px;
             font-size: clamp(18px, 3.5vw, 22px);
         }
 
-        .note-form-group { margin-bottom: 18px; }
+        .auth-form-group, .note-form-group { margin-bottom: 18px; }
 
-        .note-form-group label {
+        .auth-form-group label, .note-form-group label {
             display: block;
             margin-bottom: 7px;
-            font-weight: bold;
-            color: #34495e;
-            font-size: clamp(13px, 2.5vw, 15px);
+            font-family: 'DM Mono', monospace;
+            font-size: clamp(11px, 2vw, 13px);
+            font-weight: 500;
+            color: var(--text-secondary);
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
         }
 
+        .auth-form-group select,
+        .auth-form-group input,
         .note-form-group input[type="text"],
         .note-form-group input[type="time"],
         .note-form-group textarea {
             width: 100%;
-            padding: 10px 12px;
-            border: 2px solid #bdc3c7;
-            border-radius: 6px;
-            font-size: clamp(14px, 2.5vw, 15px);
-            transition: border-color 0.3s ease;
+            padding: 11px 13px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background-color: var(--bg-raised);
+            color: var(--text-primary);
+            font-family: 'DM Mono', monospace;
+            font-size: clamp(13px, 2vw, 14px);
+            transition: all 0.2s;
             box-sizing: border-box;
-            font-family: inherit;
         }
-
-        .note-form-group textarea { resize: vertical; min-height: 70px; }
-
-        .note-form-group input:focus,
-        .note-form-group textarea:focus { border-color: #3498db; outline: none; }
-
-        .time-row {
-            display: flex;
-            gap: 14px;
-        }
-
-        .time-row .note-form-group {
-            flex: 1;
-        }
-
-        .note-buttons {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            margin-top: 22px;
-            flex-wrap: wrap;
-        }
-
-        .note-btn {
-            padding: 11px 18px;
-            border: none;
-            border-radius: 6px;
-            font-size: clamp(13px, 2vw, 15px);
-            font-weight: bold;
+        .auth-form-group select {
+            appearance: none; -webkit-appearance: none;
+            background-image: var(--select-arrow);
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            padding-right: 34px;
             cursor: pointer;
-            transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-            gap: 6px;
+        }
+        .auth-form-group input:focus, .auth-form-group select:focus,
+        .note-form-group input:focus, .note-form-group textarea:focus {
+            outline: none; border-color: var(--accent-blue); background-color: var(--bg-hover);
+        }
+        .note-form-group textarea { resize: vertical; min-height: 72px; line-height: 1.6; }
+
+        input[type="time"]::-webkit-calendar-picker-indicator { filter: invert(0.5); cursor: pointer; }
+        [data-theme="light"] input[type="time"]::-webkit-calendar-picker-indicator { filter: none; }
+
+        .time-row { display: flex; gap: 14px; }
+        .time-row .note-form-group { flex: 1; }
+
+        /* ===== MODAL BUTTONS ===== */
+        .auth-buttons, .note-buttons {
+            display: flex; gap: 9px; justify-content: center;
+            margin-top: 20px; flex-wrap: wrap;
         }
 
-        .note-btn-save {
-            background-color: #27ae60;
-            color: white;
+        .auth-btn, .note-btn {
+            padding: 10px 18px;
+            border: 1px solid transparent;
+            border-radius: 7px;
+            font-family: 'DM Mono', monospace;
+            font-size: clamp(12px, 1.8vw, 13px);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex; align-items: center; gap: 6px;
         }
-        .note-btn-save:hover { background-color: #219a52; transform: translateY(-1px); }
 
-        .note-btn-gcal {
-            background-color: #4285F4;
-            color: white;
-        }
-        .note-btn-gcal:hover { background-color: #357ae8; transform: translateY(-1px); }
+        .auth-btn-primary { background-color: var(--accent-blue); color: #fff; border-color: var(--accent-blue); }
+        .auth-btn-primary:hover { background-color: var(--accent-blue-h); transform: translateY(-1px); box-shadow: 0 4px 16px var(--accent-shadow); }
 
-        .note-btn-cancel {
-            background-color: #95a5a6;
-            color: white;
+        .auth-btn-secondary, .note-btn-cancel {
+            background-color: var(--bg-raised); color: var(--text-secondary); border-color: var(--border);
         }
-        .note-btn-cancel:hover { background-color: #7f8c8d; }
+        .auth-btn-secondary:hover, .note-btn-cancel:hover { background-color: var(--bg-hover); color: var(--text-primary); }
 
-        .note-btn-gcal-delete {
-            background-color: #e67e22;
-            color: white;
+        .auth-error {
+            color: var(--error-text); text-align: center; margin-top: 14px;
+            font-family: 'DM Mono', monospace; font-size: clamp(11px, 1.8vw, 12px);
+            font-weight: 500; display: none;
         }
-        .note-btn-gcal-delete:hover { background-color: #ca6f1e; transform: translateY(-1px); }
 
-        .note-btn-delete {
-            background-color: #e74c3c;
-            color: white;
-        }
-        .note-btn-delete:hover { background-color: #c0392b; }
+        .note-btn-save       { background-color: var(--success-bg); color: var(--success-text); border-color: var(--success-border); }
+        .note-btn-save:hover { opacity: 0.8; transform: translateY(-1px); }
+
+        .note-btn-gcal       { background-color: rgba(79,126,247,0.10); color: var(--accent-blue); border-color: rgba(79,126,247,0.30); }
+        .note-btn-gcal:hover { opacity: 0.8; transform: translateY(-1px); }
+
+        .note-btn-delete       { background-color: var(--error-bg); color: var(--error-text); border-color: var(--error-border); }
+        .note-btn-delete:hover { opacity: 0.8; }
+
+        .note-btn-gcal-delete       { background-color: var(--warning-bg); color: var(--warning-text); border-color: var(--warning-border); }
+        .note-btn-gcal-delete:hover { opacity: 0.8; transform: translateY(-1px); }
 
         .gcal-hint {
-            font-size: clamp(11px, 1.8vw, 12px);
-            color: #7f8c8d;
-            text-align: center;
-            margin-top: 10px;
-            font-style: italic;
+            font-family: 'DM Mono', monospace; font-size: clamp(10px, 1.6vw, 11px);
+            color: var(--text-muted); text-align: center; margin-top: 12px;
+            font-style: italic; line-height: 1.6;
         }
+
+        /* ===== MOBILE ===== */
+        @media (max-width: 768px) {
+            body { padding: 10px 8px; }
+            .calendar-container { padding: 16px; }
+            h1 { flex-direction: column; align-items: center; gap: 14px; padding-right: 0; }
+            .logo-container { order:1; max-width:140px; }
+            .title-text { order:2; padding:0; }
+            .legend-controls { order:3; max-width:100%; width:100%; }
+            .csv-controls { flex-direction:row; gap:8px; }
+            #theme-toggle { top:10px; right:10px; }
+        }
+        @media (max-width: 480px) {
+            .logo-container { max-width:110px; }
+            .legend-btn, .modify-btn, .csv-btn { padding:4px 8px; }
+        }
+
+        .io-controls { display: none; }
     </style>
 </head>
 <body>
     <div class="calendar-container">
+
+        <button id="theme-toggle" title="Cambia tema">🌙</button>
+
         <h1>
             <div class="logo-container">
                 <img src="MaxAndStar.png" alt="Logo" class="logo">
@@ -562,20 +611,24 @@
             </div>
             <input type="file" id="upload-input" accept=".csv" style="display: none;">
         </h1>
+
+        <hr class="header-divider">
+
         <div class="controls">
             <button id="prev-month-btn" title="Mese precedente">&larr;</button>
             <select id="month-select"></select>
             <select id="year-select"></select>
             <button id="next-month-btn" title="Mese successivo">&rarr;</button>
         </div>
+
         <div class="calendar-grid" id="day-headers">
-            <div class="day-header">Lunedì</div>
-            <div class="day-header">Martedì</div>
-            <div class="day-header">Mercoledì</div>
-            <div class="day-header">Giovedì</div>
-            <div class="day-header">Venerdì</div>
-            <div class="day-header">Sabato</div>
-            <div class="day-header">Domenica</div>
+            <div class="day-header">Lun</div>
+            <div class="day-header">Mar</div>
+            <div class="day-header">Mer</div>
+            <div class="day-header">Gio</div>
+            <div class="day-header">Ven</div>
+            <div class="day-header">Sab</div>
+            <div class="day-header">Dom</div>
         </div>
         <div class="calendar-grid" id="calendar-body"></div>
         <div id="debug-status">Stato connessione: In attesa...</div>
@@ -587,7 +640,7 @@
             <h2>Autenticazione Utente</h2>
             <form id="auth-form">
                 <div class="auth-form-group">
-                    <label for="user-select">Seleziona Utente:</label>
+                    <label for="user-select">Seleziona Utente</label>
                     <select id="user-select" required>
                         <option value="">-- Scegli un utente --</option>
                         <option value="chiara">Chiara</option>
@@ -596,7 +649,7 @@
                     </select>
                 </div>
                 <div class="auth-form-group">
-                    <label for="password-input">Password:</label>
+                    <label for="password-input">Password</label>
                     <input type="password" id="password-input" placeholder="Inserisci la password" required>
                 </div>
                 <div class="auth-error" id="auth-error">Password non corretta!</div>
@@ -613,16 +666,16 @@
         <div class="note-modal-content">
             <h2 id="note-modal-title">📅 Impegno del giorno</h2>
             <div class="note-form-group">
-                <label for="note-text-input">Descrizione:</label>
+                <label for="note-text-input">Descrizione</label>
                 <textarea id="note-text-input" placeholder="Es. Visita medica, Riunione, Compleanno…" rows="3"></textarea>
             </div>
             <div class="time-row">
                 <div class="note-form-group">
-                    <label for="note-start-time">Orario inizio:</label>
+                    <label for="note-start-time">Orario inizio</label>
                     <input type="time" id="note-start-time">
                 </div>
                 <div class="note-form-group">
-                    <label for="note-end-time">Orario fine:</label>
+                    <label for="note-end-time">Orario fine</label>
                     <input type="time" id="note-end-time">
                 </div>
             </div>
@@ -644,50 +697,56 @@
 
     <script>
         // --- CONFIGURAZIONE JSONBIN.IO ---
-        const BIN_ID = '68a83cbbd0ea881f40602c74'; 
-        const SECRET_KEY = '$2a$10$CtbtL1tHcPUt5SemT8R1LOpcEl7vZ7NL17Ffh.mqPmixouh6CdmMu'; 
+        const BIN_ID     = '68a83cbbd0ea881f40602c74';
+        const SECRET_KEY = '$2a$10$CtbtL1tHcPUt5SemT8R1LOpcEl7vZ7NL17Ffh.mqPmixouh6CdmMu';
 
-        let modifiedDaysDB = {};
+        let modifiedDaysDB       = {};
         let isModificationLocked = true;
-        let currentUser = null;
-        
-        // Variabile che tiene traccia della data su cui si sta lavorando nel modal note
-        let activeNoteDate = null;
+        let currentUser          = null;
+        let activeNoteDate       = null;
+        let dbAvailable          = true;
 
-        const debugStatusEl = document.getElementById('debug-status');
+        const debugStatusEl  = document.getElementById('debug-status');
+        const htmlEl         = document.documentElement;
+        const themeToggleBtn = document.getElementById('theme-toggle');
 
-        // --- CREDENZIALI UTENTI ---
-        const userCredentials = {
-            'chiara': 'Chiara25',
-            'stefano': 'Stefano81!',
-            'guest': 'Guest2025'
-        };
+        const userCredentials = { chiara: 'Chiara25', stefano: 'Stefano81!', guest: 'Guest2025' };
+        const userInitials    = { chiara: 'C', stefano: 'S', guest: 'G' };
 
-        const userInitials = {
-            'chiara': 'C',
-            'stefano': 'S',
-            'guest': 'G'
-        };
+        // ---------------------------------------------------
+        // TEMA AUTO + MANUALE
+        // ---------------------------------------------------
+        function getTodayDefaultColor() {
+            const today = new Date();
+            const dow   = today.getDay();
+            if (dow === 1 || dow === 2) return 'yellow';
+            if (dow === 3 || dow === 4) return 'red';
+            const d = new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()));
+            d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+            const ys = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+            const wn = Math.ceil((((d - ys) / 86400000) + 1) / 7);
+            return (wn % 2 === 0) ? 'red' : 'yellow';
+        }
 
-        // --- ELEMENTI DOM AUTH MODAL ---
-        const authModal    = document.getElementById('auth-modal');
-        const authForm     = document.getElementById('auth-form');
-        const userSelect   = document.getElementById('user-select');
-        const passwordInput= document.getElementById('password-input');
-        const authError    = document.getElementById('auth-error');
-        const cancelAuthBtn= document.getElementById('cancel-auth');
+        function applyTheme(theme) {
+            htmlEl.setAttribute('data-theme', theme);
+            themeToggleBtn.textContent = (theme === 'dark') ? '☀️' : '🌙';
+            themeToggleBtn.title = (theme === 'dark') ? 'Passa al tema chiaro' : 'Passa al tema scuro';
+            try { localStorage.setItem('cal-theme', theme); } catch(e) {}
+        }
 
-        // --- ELEMENTI DOM NOTE MODAL ---
-        const noteModal       = document.getElementById('note-modal');
-        const noteModalTitle  = document.getElementById('note-modal-title');
-        const noteTextInput   = document.getElementById('note-text-input');
-        const noteStartTime   = document.getElementById('note-start-time');
-        const noteEndTime     = document.getElementById('note-end-time');
-        const noteSaveBtn     = document.getElementById('note-save-btn');
-        const noteGcalBtn     = document.getElementById('note-gcal-btn');
-        const noteDeleteBtn   = document.getElementById('note-delete-btn');
-        const noteGcalDeleteBtn = document.getElementById('note-gcal-delete-btn');
-        const noteCancelBtn   = document.getElementById('note-cancel-btn');
+        function initTheme() {
+            // Priorità: scelta salvata → colore del giorno corrente
+            let saved = null;
+            try { saved = localStorage.getItem('cal-theme'); } catch(e) {}
+            if (saved === 'dark' || saved === 'light') { applyTheme(saved); return; }
+            // giallo → dark, rosso → light
+            applyTheme(getTodayDefaultColor() === 'yellow' ? 'dark' : 'light');
+        }
+
+        themeToggleBtn.addEventListener('click', () => {
+            applyTheme(htmlEl.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+        });
 
         // ---------------------------------------------------
         // UTILITY
@@ -700,7 +759,6 @@
             if (type === 'error')   debugStatusEl.classList.add('status-error');
         }
 
-        // Formatta "HH:MM" in "HHhMM" per la visualizzazione compatta nella cella
         function formatTimeDisplay(start, end) {
             if (!start && !end) return '';
             if (start && end)   return `${start} – ${end}`;
@@ -708,98 +766,75 @@
             return `fino alle ${end}`;
         }
 
-        // Converte una data (YYYY-MM-DD) e un orario (HH:MM) nel formato YYYYMMDDTHHmmss
         function toGCalDateTime(dateKey, timeStr) {
-            // dateKey = "2025-06-15", timeStr = "09:30"
             const [y, m, d] = dateKey.split('-');
-            if (timeStr) {
-                const [hh, mm] = timeStr.split(':');
-                return `${y}${m}${d}T${hh}${mm}00`;
-            }
-            // Se non c'è orario, evento per tutto il giorno
+            if (timeStr) { const [hh, mm] = timeStr.split(':'); return `${y}${m}${d}T${hh}${mm}00`; }
             return `${y}${m}${d}`;
         }
 
-        // Genera l'URL di Google Calendar con i parametri precompilati
         function buildGCalUrl(dateKey, title, startTime, endTime) {
             const base = 'https://calendar.google.com/calendar/render?action=TEMPLATE';
-            const encodedTitle = encodeURIComponent(title || 'Impegno');
-
+            const enc  = encodeURIComponent(title || 'Impegno');
             let dates;
             if (startTime) {
                 const start = toGCalDateTime(dateKey, startTime);
-                // Se non c'è fine, usa inizio + 1 ora
                 let endDT;
                 if (endTime) {
                     endDT = toGCalDateTime(dateKey, endTime);
                 } else {
                     const [hh, mm] = startTime.split(':').map(Number);
-                    const endHH = String(hh + 1).padStart(2, '0');
-                    endDT = toGCalDateTime(dateKey, `${endHH}:${String(mm).padStart(2, '0')}`);
+                    endDT = toGCalDateTime(dateKey, `${String(hh+1).padStart(2,'0')}:${String(mm).padStart(2,'0')}`);
                 }
                 dates = `${start}/${endDT}`;
             } else {
-                // Evento giornaliero: YYYYMMDD/YYYYMMDD+1
-                const [y, m, d] = dateKey.split('-').map(Number);
-                const nextDay = new Date(y, m - 1, d + 1);
-                const ny = nextDay.getFullYear();
-                const nm = String(nextDay.getMonth() + 1).padStart(2, '0');
-                const nd = String(nextDay.getDate()).padStart(2, '0');
-                dates = `${y}${String(m).padStart(2,'0')}${String(d).padStart(2,'0')}/${ny}${nm}${nd}`;
+                const [y,m,d] = dateKey.split('-').map(Number);
+                const nd = new Date(y, m-1, d+1);
+                dates = `${y}${String(m).padStart(2,'0')}${String(d).padStart(2,'0')}/${nd.getFullYear()}${String(nd.getMonth()+1).padStart(2,'0')}${String(nd.getDate()).padStart(2,'0')}`;
             }
-
-            return `${base}&text=${encodedTitle}&dates=${dates}`;
+            return `${base}&text=${enc}&dates=${dates}`;
         }
 
         // ---------------------------------------------------
         // AUTH MODAL
         // ---------------------------------------------------
+        const authModal     = document.getElementById('auth-modal');
+        const authForm      = document.getElementById('auth-form');
+        const userSelect    = document.getElementById('user-select');
+        const passwordInput = document.getElementById('password-input');
+        const authError     = document.getElementById('auth-error');
+        const cancelAuthBtn = document.getElementById('cancel-auth');
+
         function showAuthModal() {
             authModal.style.display = 'block';
-            userSelect.value = '';
-            passwordInput.value = '';
+            userSelect.value = ''; passwordInput.value = '';
             authError.style.display = 'none';
             userSelect.focus();
         }
-
-        function hideAuthModal() {
-            authModal.style.display = 'none';
-        }
+        function hideAuthModal() { authModal.style.display = 'none'; }
 
         function validateAuthentication() {
-            const selectedUser = userSelect.value;
-            const enteredPassword = passwordInput.value;
-            if (!selectedUser) {
-                authError.textContent = 'Seleziona un utente!';
-                authError.style.display = 'block';
-                return false;
-            }
-            if (userCredentials[selectedUser] === enteredPassword) {
-                currentUser = selectedUser;
-                return true;
-            } else {
-                authError.textContent = 'Password non corretta!';
-                authError.style.display = 'block';
-                passwordInput.value = '';
-                passwordInput.focus();
-                return false;
-            }
+            const sel = userSelect.value, pwd = passwordInput.value;
+            if (!sel) { authError.textContent='Seleziona un utente!'; authError.style.display='block'; return false; }
+            if (userCredentials[sel] === pwd) { currentUser = sel; return true; }
+            authError.textContent = 'Password non corretta!';
+            authError.style.display = 'block';
+            passwordInput.value = ''; passwordInput.focus();
+            return false;
         }
 
-        authForm.addEventListener('submit', (e) => {
+        authForm.addEventListener('submit', e => {
             e.preventDefault();
             if (validateAuthentication()) {
                 isModificationLocked = false;
-                updateModifyButtonAppearance();
-                renderCalendar();
-                hideAuthModal();
-                setStatus(`Accesso autorizzato per ${currentUser.charAt(0).toUpperCase() + currentUser.slice(1)}. Modifica calendario abilitata.`, 'success');
+                updateModifyButtonAppearance(); renderCalendar(); hideAuthModal();
+                setStatus(`Accesso autorizzato per ${currentUser.charAt(0).toUpperCase()+currentUser.slice(1)}. Modifica abilitata.`, 'success');
             }
         });
 
         cancelAuthBtn.addEventListener('click', hideAuthModal);
-        authModal.addEventListener('click', (e) => { if (e.target === authModal) hideAuthModal(); });
-        document.addEventListener('keydown', (e) => {
+        authModal.addEventListener('click', e => { if (e.target === authModal) hideAuthModal(); });
+
+        document.addEventListener('keydown', e => {
             if (e.key === 'Escape') {
                 if (authModal.style.display === 'block') hideAuthModal();
                 if (noteModal.style.display === 'block') hideNoteModal();
@@ -809,117 +844,84 @@
         // ---------------------------------------------------
         // NOTE MODAL
         // ---------------------------------------------------
+        const noteModal         = document.getElementById('note-modal');
+        const noteModalTitle    = document.getElementById('note-modal-title');
+        const noteTextInput     = document.getElementById('note-text-input');
+        const noteStartTime     = document.getElementById('note-start-time');
+        const noteEndTime       = document.getElementById('note-end-time');
+        const noteSaveBtn       = document.getElementById('note-save-btn');
+        const noteGcalBtn       = document.getElementById('note-gcal-btn');
+        const noteDeleteBtn     = document.getElementById('note-delete-btn');
+        const noteGcalDeleteBtn = document.getElementById('note-gcal-delete-btn');
+        const noteCancelBtn     = document.getElementById('note-cancel-btn');
+
         function showNoteModal(dateKey) {
             activeNoteDate = dateKey;
             const entry = modifiedDaysDB[dateKey];
-
-            // Formatta il titolo del modal: "Giovedì 15 Giugno 2025"
-            const [y, m, d] = dateKey.split('-').map(Number);
-            const dateObj = new Date(y, m - 1, d);
-            const giorni = ['Domenica','Lunedì','Martedì','Mercoledì','Giovedì','Venerdì','Sabato'];
-            const mesiIt = ['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
+            const [y,m,d] = dateKey.split('-').map(Number);
+            const dateObj = new Date(y, m-1, d);
+            const giorni  = ['Domenica','Lunedì','Martedì','Mercoledì','Giovedì','Venerdì','Sabato'];
+            const mesiIt  = ['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
             noteModalTitle.textContent = `📅 ${giorni[dateObj.getDay()]} ${d} ${mesiIt[m-1]} ${y}`;
-
-            // Precompila i campi con i valori salvati
-            noteTextInput.value  = entry?.note      || '';
-            noteStartTime.value  = entry?.startTime || '';
-            noteEndTime.value    = entry?.endTime   || '';
-
-            // Mostra/nascondi i pulsanti elimina in base alla presenza di dati
+            noteTextInput.value = entry?.note      || '';
+            noteStartTime.value = entry?.startTime || '';
+            noteEndTime.value   = entry?.endTime   || '';
             const hasData = !!(entry?.note || entry?.startTime || entry?.endTime);
             noteDeleteBtn.style.display     = hasData ? 'flex' : 'none';
             noteGcalDeleteBtn.style.display = hasData ? 'flex' : 'none';
-
             noteModal.style.display = 'block';
             noteTextInput.focus();
         }
 
-        function hideNoteModal() {
-            noteModal.style.display = 'none';
-            activeNoteDate = null;
-        }
+        function hideNoteModal() { noteModal.style.display = 'none'; activeNoteDate = null; }
 
-        // Salva nota + orari (senza aprire Google Calendar)
-        noteSaveBtn.addEventListener('click', () => {
-            saveNoteData(activeNoteDate);
-            hideNoteModal();
-        });
+        noteSaveBtn.addEventListener('click', () => { saveNoteData(activeNoteDate); hideNoteModal(); });
 
-        // Salva e apri Google Calendar
         noteGcalBtn.addEventListener('click', () => {
             saveNoteData(activeNoteDate);
             const entry = modifiedDaysDB[activeNoteDate];
-            const url = buildGCalUrl(
-                activeNoteDate,
-                entry?.note      || 'Impegno',
-                entry?.startTime || '',
-                entry?.endTime   || ''
-            );
-            window.open(url, '_blank');
+            window.open(buildGCalUrl(activeNoteDate, entry?.note||'Impegno', entry?.startTime||'', entry?.endTime||''), '_blank');
             hideNoteModal();
         });
 
-        // Apri Google Calendar sulla vista del giorno per eliminare manualmente l'evento
         noteGcalDeleteBtn.addEventListener('click', () => {
             if (!activeNoteDate) return;
-            const [y, m, d] = activeNoteDate.split('-');
-            // URL della vista giornaliera di Google Calendar
-            const url = `https://calendar.google.com/calendar/r/day/${y}/${parseInt(m)}/${parseInt(d)}`;
-            window.open(url, '_blank');
+            const [y,m,d] = activeNoteDate.split('-');
+            window.open(`https://calendar.google.com/calendar/r/day/${y}/${parseInt(m)}/${parseInt(d)}`, '_blank');
         });
 
-        // Elimina nota e orari
         noteDeleteBtn.addEventListener('click', () => {
             if (!activeNoteDate) return;
             if (modifiedDaysDB[activeNoteDate]) {
-                modifiedDaysDB[activeNoteDate].note      = '';
+                modifiedDaysDB[activeNoteDate].note = '';
                 delete modifiedDaysDB[activeNoteDate].startTime;
                 delete modifiedDaysDB[activeNoteDate].endTime;
                 cleanupEntry(activeNoteDate);
             }
-            saveModifications();
-            renderCalendar();
-            hideNoteModal();
+            saveModifications(); renderCalendar(); hideNoteModal();
         });
 
         noteCancelBtn.addEventListener('click', hideNoteModal);
-        noteModal.addEventListener('click', (e) => { if (e.target === noteModal) hideNoteModal(); });
+        noteModal.addEventListener('click', e => { if (e.target === noteModal) hideNoteModal(); });
 
         function saveNoteData(dateKey) {
             if (!dateKey) return;
-            const trimmedNote  = noteTextInput.value.trim();
-            const startTime    = noteStartTime.value;
-            const endTime      = noteEndTime.value;
-
-            if (!modifiedDaysDB[dateKey]) {
+            const note = noteTextInput.value.trim();
+            const st   = noteStartTime.value;
+            const et   = noteEndTime.value;
+            if (!modifiedDaysDB[dateKey])
                 modifiedDaysDB[dateKey] = { modified: false, note: '', modifiedBy: currentUser ? userInitials[currentUser] : null };
-            }
-
-            modifiedDaysDB[dateKey].note = trimmedNote;
-
-            if (startTime) {
-                modifiedDaysDB[dateKey].startTime = startTime;
-            } else {
-                delete modifiedDaysDB[dateKey].startTime;
-            }
-
-            if (endTime) {
-                modifiedDaysDB[dateKey].endTime = endTime;
-            } else {
-                delete modifiedDaysDB[dateKey].endTime;
-            }
-
-            if (!modifiedDaysDB[dateKey].modifiedBy && currentUser) {
+            modifiedDaysDB[dateKey].note = note;
+            if (st) modifiedDaysDB[dateKey].startTime = st; else delete modifiedDaysDB[dateKey].startTime;
+            if (et) modifiedDaysDB[dateKey].endTime   = et; else delete modifiedDaysDB[dateKey].endTime;
+            if (!modifiedDaysDB[dateKey].modifiedBy && currentUser)
                 modifiedDaysDB[dateKey].modifiedBy = userInitials[currentUser];
-            }
-
             cleanupEntry(dateKey);
-            saveModifications();
-            renderCalendar();
+            saveModifications(); renderCalendar();
         }
 
         // ---------------------------------------------------
-        // DATI REMOTI
+        // DB REMOTO — non bloccante in caso di errore
         // ---------------------------------------------------
         function loadModifications() {
             setStatus('Caricamento dati...');
@@ -927,55 +929,59 @@
                 method: 'GET',
                 headers: { 'X-Master-Key': SECRET_KEY }
             })
-            .then(response => {
-                if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
-                return response.json();
+            .then(r => {
+                if (!r.ok) throw new Error(`HTTP ${r.status} ${r.statusText}`);
+                return r.json();
             })
             .then(data => {
+                dbAvailable = true;
                 if (data?.record?.modifiche) {
                     modifiedDaysDB = data.record.modifiche;
-                    Object.keys(modifiedDaysDB).forEach(dateKey => {
-                        const entry = modifiedDaysDB[dateKey];
-                        if (entry && !entry.modifiedBy && entry.modified) {
-                            entry.modifiedBy = 'S';
-                        }
+                    Object.keys(modifiedDaysDB).forEach(dk => {
+                        const e = modifiedDaysDB[dk];
+                        if (e && !e.modifiedBy && e.modified) e.modifiedBy = 'S';
                     });
                     setStatus('Dati caricati con successo da JSONBin.io.', 'success');
                 } else {
                     modifiedDaysDB = {};
-                    setStatus('Dati non trovati. Inizializzazione.', 'warning');
+                    setStatus('Dati non trovati. Calendario vuoto.', 'warning');
                 }
             })
-            .catch(error => {
-                setStatus(`Errore caricamento: ${error.message}.`, 'error');
-                console.error(error);
+            .catch(err => {
+                // ⚠ NON si blocca: la pagina è pienamente usabile offline
+                dbAvailable = false;
+                modifiedDaysDB = {};
+                setStatus(`⚠ Errore accesso al DB: ${err.message} — Modalità offline, le modifiche non verranno salvate sul server.`, 'error');
+                console.error('[DB load]', err);
+                // Non rilancia → .finally() procede normalmente
             });
         }
 
         function saveModifications() {
-            setStatus('Salvataggio dati...');
+            if (!dbAvailable) {
+                setStatus('⚠ DB non raggiungibile — modifiche non salvate sul server.', 'error');
+                return;
+            }
+            setStatus('Salvataggio...');
             fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
                 method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Access-Key': SECRET_KEY,
-                    'X-Bin-Private': 'false'
-                },
+                headers: { 'Content-Type': 'application/json', 'X-Access-Key': SECRET_KEY, 'X-Bin-Private': 'false' },
                 body: JSON.stringify({ modifiche: modifiedDaysDB })
             })
-            .then(response => {
-                if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
-                return response.json();
+            .then(r => {
+                if (!r.ok) throw new Error(`HTTP ${r.status}`);
+                return r.json();
             })
-            .then(() => setStatus('Dati salvati con successo.', 'success'))
-            .catch(error => {
-                setStatus(`Errore salvataggio: ${error.message}.`, 'error');
-                console.error(error);
+            .then(() => { dbAvailable = true; setStatus('Dati salvati con successo.', 'success'); })
+            .catch(err => {
+                dbAvailable = false;
+                setStatus(`⚠ Errore salvataggio: ${err.message}`, 'error');
+                console.error('[DB save]', err);
             });
         }
 
         // ---------------------------------------------------
-        // DOM
+        // DOM REFS
         // ---------------------------------------------------
         const monthSelect  = document.getElementById('month-select');
         const yearSelect   = document.getElementById('year-select');
@@ -992,153 +998,129 @@
         // INIT
         // ---------------------------------------------------
         document.addEventListener('DOMContentLoaded', () => {
+            initTheme();
             populateSelects(new Date().getMonth(), new Date().getFullYear());
             monthSelect.addEventListener('change', renderCalendar);
-            yearSelect.addEventListener('change', renderCalendar);
+            yearSelect.addEventListener('change',  renderCalendar);
             prevMonthBtn.addEventListener('click', goToPrevMonth);
             nextMonthBtn.addEventListener('click', goToNextMonth);
             downloadBtn.addEventListener('click', downloadCSV);
             uploadBtn.addEventListener('click', () => uploadInput.click());
             uploadInput.addEventListener('change', uploadCSV);
             modifyBtn.addEventListener('click', toggleModificationLock);
+            // .finally garantisce che il render avvenga anche se il DB non risponde
             loadModifications().finally(() => {
                 renderCalendar();
                 updateModifyButtonAppearance();
             });
         });
 
-        function populateSelects(currentMonth, currentYear) {
-            months.forEach((month, index) => monthSelect.add(new Option(month, index)));
-            for (let i = currentYear - 10; i <= currentYear + 10; i++) yearSelect.add(new Option(i, i));
-            monthSelect.value = currentMonth;
-            yearSelect.value  = currentYear;
+        function populateSelects(cm, cy) {
+            months.forEach((m, i) => monthSelect.add(new Option(m, i)));
+            for (let i = cy-10; i <= cy+10; i++) yearSelect.add(new Option(i, i));
+            monthSelect.value = cm; yearSelect.value = cy;
         }
 
         // ---------------------------------------------------
-        // RENDER CALENDARIO
+        // RENDER
         // ---------------------------------------------------
+        const todayStr = (() => {
+            const t = new Date();
+            return `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`;
+        })();
+
         function renderCalendar() {
             const year  = parseInt(yearSelect.value);
             const month = parseInt(monthSelect.value);
             calendarBody.innerHTML = '';
-            const firstDayOfMonth = new Date(year, month, 1);
-            const daysInMonth     = new Date(year, month + 1, 0).getDate();
-            let startingDay = (firstDayOfMonth.getDay() === 0) ? 6 : firstDayOfMonth.getDay() - 1;
-            for (let i = 0; i < startingDay; i++) calendarBody.appendChild(document.createElement('div'));
+            const firstDay    = new Date(year, month, 1);
+            const daysInMonth = new Date(year, month+1, 0).getDate();
+            const startDay    = (firstDay.getDay() === 0) ? 6 : firstDay.getDay() - 1;
+            for (let i = 0; i < startDay; i++) calendarBody.appendChild(document.createElement('div'));
 
             for (let day = 1; day <= daysInMonth; day++) {
-                const dateKey    = `${year}-${String(month + 1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
-                const dbEntry    = modifiedDaysDB[dateKey];
-                const currentDate= new Date(year, month, day);
+                const dateKey  = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+                const dbEntry  = modifiedDaysDB[dateKey];
+                const isToday  = (dateKey === todayStr);
 
                 const dayCell = document.createElement('div');
                 dayCell.className = 'day-cell';
-                if (!isModificationLocked) {
+                if (!isModificationLocked)
                     dayCell.addEventListener('click', () => toggleDayColor(dateKey));
-                }
 
-                // Numero del giorno
                 const dayNumber = document.createElement('span');
-                dayNumber.className = 'day-number';
+                dayNumber.className = 'day-number' + (isToday ? ' today-marker' : '');
                 dayNumber.textContent = day;
 
-                // Testo della nota
                 const dayNote = document.createElement('div');
                 dayNote.className = 'day-note';
                 if (dbEntry?.note) dayNote.textContent = dbEntry.note;
 
-                // Orario (visibile se presente)
                 const dayTime = document.createElement('div');
                 dayTime.className = 'day-time';
-                const timeDisplay = formatTimeDisplay(dbEntry?.startTime, dbEntry?.endTime);
-                if (timeDisplay) dayTime.textContent = timeDisplay;
+                const td = formatTimeDisplay(dbEntry?.startTime, dbEntry?.endTime);
+                if (td) dayTime.textContent = td;
 
-                // Iniziale utente (in alto a destra)
-                const userInitial = document.createElement('span');
-                userInitial.className = 'user-initial';
+                const userBadge = document.createElement('span');
                 if (dbEntry?.modified && dbEntry?.modifiedBy) {
-                    userInitial.textContent = dbEntry.modifiedBy;
-                    userInitial.style.cssText = `
-                        position: absolute;
-                        top: 5px; right: 5px;
-                        font-size: 12px; font-weight: bold;
-                        background-color: rgba(255,255,255,0.8);
-                        border-radius: 50%;
-                        width: 18px; height: 18px;
-                        display: flex; align-items: center; justify-content: center;
-                        color: #333; border: 1px solid #666;
+                    userBadge.textContent = dbEntry.modifiedBy;
+                    userBadge.style.cssText = `
+                        position:absolute; top:5px; right:5px;
+                        font-size:11px; font-weight:600;
+                        font-family:'DM Mono',monospace;
+                        background-color:var(--user-badge-bg);
+                        border-radius:50%; width:18px; height:18px;
+                        display:flex; align-items:center; justify-content:center;
+                        color:var(--user-badge-c); border:1px solid var(--user-badge-b);
                     `;
                 }
 
-                // Bottone "..."
                 const dayOptions = document.createElement('span');
                 dayOptions.className = 'day-options';
                 dayOptions.innerHTML = '&hellip;';
                 dayOptions.title = 'Aggiungi/Modifica nota e orario';
-                dayOptions.addEventListener('click', (event) => {
-                    event.stopPropagation();
-                    showNoteModal(dateKey);
-                });
+                dayOptions.addEventListener('click', e => { e.stopPropagation(); showNoteModal(dateKey); });
 
-                dayCell.append(dayNumber, dayNote, dayTime, userInitial, dayOptions);
+                dayCell.append(dayNumber, dayNote, dayTime, userBadge, dayOptions);
 
-                const defaultColor = getDefaultColor(currentDate);
+                const defaultColor = getDefaultColor(new Date(year, month, day));
                 const isModified   = dbEntry?.modified ?? false;
-                const finalColor   = isModified ? (defaultColor === 'yellow' ? 'red' : 'yellow') : defaultColor;
-                dayCell.classList.add(`day-${finalColor}`);
-
+                dayCell.classList.add(`day-${isModified ? (defaultColor === 'yellow' ? 'red' : 'yellow') : defaultColor}`);
                 calendarBody.appendChild(dayCell);
             }
         }
 
         function getDefaultColor(date) {
-            const dayOfWeek = date.getDay();
-            if (dayOfWeek === 1 || dayOfWeek === 2) return 'yellow';
-            if (dayOfWeek === 3 || dayOfWeek === 4) return 'red';
-            const weekNumber = getWeekNumber(date);
-            return (weekNumber % 2 === 0) ? 'red' : 'yellow';
-        }
-
-        function getWeekNumber(d) {
-            d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+            const dow = date.getDay();
+            if (dow === 1 || dow === 2) return 'yellow';
+            if (dow === 3 || dow === 4) return 'red';
+            const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
             d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
-            const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
-            return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+            const ys = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+            return (Math.ceil((((d - ys) / 86400000) + 1) / 7) % 2 === 0) ? 'red' : 'yellow';
         }
 
-        // ---------------------------------------------------
-        // LOCK / UNLOCK
-        // ---------------------------------------------------
         function toggleModificationLock() {
             if (!isModificationLocked) {
-                isModificationLocked = true;
-                currentUser = null;
-                updateModifyButtonAppearance();
-                renderCalendar();
+                isModificationLocked = true; currentUser = null;
+                updateModifyButtonAppearance(); renderCalendar();
                 setStatus('Modifica calendario disabilitata.', 'warning');
-            } else {
-                showAuthModal();
-            }
+            } else { showAuthModal(); }
         }
 
         function updateModifyButtonAppearance() {
             if (isModificationLocked) {
-                modifyBtn.classList.replace('unlocked', 'locked');
+                modifyBtn.classList.replace('unlocked','locked');
                 modifyBtn.textContent = 'Abilita modifica calendario';
             } else {
-                modifyBtn.classList.replace('locked', 'unlocked');
+                modifyBtn.classList.replace('locked','unlocked');
                 modifyBtn.textContent = 'Disabilita modifica calendario';
             }
         }
 
-        // ---------------------------------------------------
-        // STATO GIORNI
-        // ---------------------------------------------------
-        function cleanupEntry(dateKey) {
-            const entry = modifiedDaysDB[dateKey];
-            if (entry && !entry.modified && !entry.note && !entry.startTime && !entry.endTime) {
-                delete modifiedDaysDB[dateKey];
-            }
+        function cleanupEntry(dk) {
+            const e = modifiedDaysDB[dk];
+            if (e && !e.modified && !e.note && !e.startTime && !e.endTime) delete modifiedDaysDB[dk];
         }
 
         function toggleDayColor(dateKey) {
@@ -1147,62 +1129,41 @@
                 modifiedDaysDB[dateKey] = { modified: true, note: '', modifiedBy: userInitials[currentUser] };
             } else {
                 modifiedDaysDB[dateKey].modified = !modifiedDaysDB[dateKey].modified;
-                if (modifiedDaysDB[dateKey].modified) {
-                    modifiedDaysDB[dateKey].modifiedBy = userInitials[currentUser];
-                } else {
-                    delete modifiedDaysDB[dateKey].modifiedBy;
-                }
+                if (modifiedDaysDB[dateKey].modified) modifiedDaysDB[dateKey].modifiedBy = userInitials[currentUser];
+                else delete modifiedDaysDB[dateKey].modifiedBy;
             }
-            cleanupEntry(dateKey);
-            saveModifications();
-            renderCalendar();
+            cleanupEntry(dateKey); saveModifications(); renderCalendar();
         }
 
-        // ---------------------------------------------------
-        // NAVIGAZIONE
-        // ---------------------------------------------------
         function goToPrevMonth() {
             let y = parseInt(yearSelect.value), m = parseInt(monthSelect.value);
-            m--; if (m < 0) { m = 11; y--; }
-            updateAndRender(y, m);
+            m--; if (m < 0) { m=11; y--; } updateAndRender(y, m);
         }
         function goToNextMonth() {
             let y = parseInt(yearSelect.value), m = parseInt(monthSelect.value);
-            m++; if (m > 11) { m = 0; y++; }
-            updateAndRender(y, m);
+            m++; if (m > 11) { m=0; y++; } updateAndRender(y, m);
         }
-        function updateAndRender(year, month) {
-            const minYear = parseInt(yearSelect.options[0].value);
-            const maxYear = parseInt(yearSelect.options[yearSelect.options.length - 1].value);
-            if (year >= minYear && year <= maxYear) {
-                yearSelect.value = year; monthSelect.value = month;
-                renderCalendar();
-            }
+        function updateAndRender(y, m) {
+            const min = parseInt(yearSelect.options[0].value);
+            const max = parseInt(yearSelect.options[yearSelect.options.length-1].value);
+            if (y >= min && y <= max) { yearSelect.value=y; monthSelect.value=m; renderCalendar(); }
         }
 
         // ---------------------------------------------------
         // CSV
         // ---------------------------------------------------
         function downloadCSV() {
-            const modifiedDates = Object.keys(modifiedDaysDB).sort();
-            if (modifiedDates.length === 0) return alert("Nessun dato da salvare.");
-
-            let csvContent = "date,is_modified,note,modified_by,start_time,end_time\r\n";
-            modifiedDates.forEach(dateKey => {
-                const entry = modifiedDaysDB[dateKey];
-                const isModified  = entry.modified ? '1' : '0';
-                let note          = entry.note || '';
-                const safeNote    = `"${note.replace(/"/g, '""')}"`;
-                const modifiedBy  = entry.modifiedBy  || '';
-                const startTime   = entry.startTime   || '';
-                const endTime     = entry.endTime     || '';
-                csvContent += `${dateKey},${isModified},${safeNote},${modifiedBy},${startTime},${endTime}\r\n`;
+            const keys = Object.keys(modifiedDaysDB).sort();
+            if (!keys.length) return alert("Nessun dato da salvare.");
+            let csv = "date,is_modified,note,modified_by,start_time,end_time\r\n";
+            keys.forEach(dk => {
+                const e = modifiedDaysDB[dk];
+                csv += `${dk},${e.modified?'1':'0'},"${(e.note||'').replace(/"/g,'""')}",${e.modifiedBy||''},${e.startTime||''},${e.endTime||''}\r\n`;
             });
-
-            const link = document.createElement("a");
-            link.setAttribute("href", "data:text/csv;charset=utf-8," + encodeURIComponent(csvContent));
-            link.setAttribute("download", "calendario_note.csv");
-            link.click();
+            const a = document.createElement('a');
+            a.setAttribute('href', 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv));
+            a.setAttribute('download', 'calendario_note.csv');
+            a.click();
         }
 
         function uploadCSV(event) {
@@ -1210,65 +1171,38 @@
             if (!file) return;
             const reader = new FileReader();
             reader.onload = function(e) {
-                const text = e.target.result;
-                const rows = text.split('\n').map(r => r.trim()).filter(r => r);
-                if (rows.length < 1) return alert("File CSV vuoto o non valido.");
-
-                const header       = rows[0].toLowerCase();
-                const hasModifiedBy= header.includes('modified_by');
-                const hasTime      = header.includes('start_time');
-                const newModifiedDays = {};
-
+                const rows = e.target.result.split('\n').map(r=>r.trim()).filter(r=>r);
+                if (!rows.length) return alert("File CSV vuoto o non valido.");
+                const header = rows[0].toLowerCase();
+                const hasMB  = header.includes('modified_by');
+                const hasT   = header.includes('start_time');
+                const newDB  = {};
                 try {
                     for (let i = 1; i < rows.length; i++) {
                         const parts = rows[i].split(',');
                         const date  = parts[0];
-                        const isModified = parts[1];
                         if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) continue;
-
-                        let note, modifiedBy, startTime = '', endTime = '';
-
-                        if (hasTime) {
-                            // Nuovo formato: date,is_modified,note,modified_by,start_time,end_time
-                            const noteParts = parts.slice(2, parts.length - 3);
-                            note       = noteParts.join(',');
-                            modifiedBy = parts[parts.length - 3];
-                            startTime  = parts[parts.length - 2] || '';
-                            endTime    = parts[parts.length - 1] || '';
-                        } else if (hasModifiedBy) {
-                            // Formato intermedio: date,is_modified,note,modified_by
-                            const noteParts = parts.slice(2, -1);
-                            note       = noteParts.join(',');
-                            modifiedBy = parts[parts.length - 1];
-                        } else {
-                            // Formato legacy
-                            note       = parts.slice(2).join(',');
-                            modifiedBy = 'S';
-                        }
-
-                        if (note.startsWith('"') && note.endsWith('"')) {
-                            note = note.slice(1, -1).replace(/""/g, '"');
-                        }
-
-                        newModifiedDays[date] = {
-                            modified:   isModified === '1',
-                            note:       note,
-                            modifiedBy: modifiedBy
-                        };
-                        if (startTime) newModifiedDays[date].startTime = startTime;
-                        if (endTime)   newModifiedDays[date].endTime   = endTime;
+                        let note, modifiedBy, st='', et='';
+                        if (hasT) {
+                            note = parts.slice(2, parts.length-3).join(',');
+                            modifiedBy = parts[parts.length-3];
+                            st = parts[parts.length-2]||''; et = parts[parts.length-1]||'';
+                        } else if (hasMB) {
+                            note = parts.slice(2,-1).join(','); modifiedBy = parts[parts.length-1];
+                        } else { note = parts.slice(2).join(','); modifiedBy = 'S'; }
+                        if (note.startsWith('"') && note.endsWith('"')) note = note.slice(1,-1).replace(/""/g,'"');
+                        newDB[date] = { modified: parts[1]==='1', note, modifiedBy };
+                        if (st) newDB[date].startTime = st;
+                        if (et) newDB[date].endTime   = et;
                     }
-                    modifiedDaysDB = newModifiedDays;
-                    saveModifications();
-                    renderCalendar();
-                    alert(`Stato ripristinato con successo da ${Object.keys(newModifiedDays).length} date.`);
-                } catch (error) {
-                    alert("Errore durante la lettura del file CSV.");
-                }
+                    modifiedDaysDB = newDB;
+                    saveModifications(); renderCalendar();
+                    alert(`Stato ripristinato con successo da ${Object.keys(newDB).length} date.`);
+                } catch(err) { alert("Errore durante la lettura del file CSV."); }
             };
             reader.readAsText(file);
             uploadInput.value = '';
         }
-    </script> 
+    </script>
 </body>
 </html>
