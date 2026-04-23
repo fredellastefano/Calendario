@@ -523,8 +523,17 @@
         const debugStatusEl  = document.getElementById('debug-status');
         const htmlEl         = document.documentElement;
         const themeToggleBtn = document.getElementById('theme-toggle');
-        const userCredentials = { chiara: 'Chiara25', stefano: 'Stefano81!', guest: 'Guest2025' };
-        const userInitials    = { chiara: 'C', stefano: 'S', guest: 'G' };
+        const userHashes = {
+            chiara:  '27fedb650cfc5db0b383033238b7a1b69c37587a6061e795cc81d72fc132e1fe',
+            stefano: '0c89bfb611a7402a526e7fd2a1dd99cc476b7744b0ce80ab05074e2edd96606f',
+            guest:   'ab956ef4854d8db53ea4bbae1640d197925ca236add6c7a2d95596cf51b0dd71'
+        };
+        const userInitials = { chiara: 'C', stefano: 'S', guest: 'G' };
+
+        async function hashPassword(pwd) {
+            const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(pwd));
+            return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+        }
 
         // --- NUMERO SETTIMANA ISO 8601 ---
         function getISOWeek(date) {
@@ -608,20 +617,23 @@
             authError.style.display = 'none'; userSelect.focus();
         }
         function hideAuthModal() { authModal.style.display = 'none'; }
-        function validateAuth() {
+        async function validateAuth() {
             const sel = userSelect.value, pwd = passwordInput.value;
             if (!sel) { authError.textContent='Seleziona un utente!'; authError.style.display='block'; return false; }
-            if (userCredentials[sel] === pwd) { currentUser = sel; return true; }
+            const hash = await hashPassword(pwd);
+            if (userHashes[sel] === hash) { currentUser = sel; return true; }
             authError.textContent = 'Password non corretta!'; authError.style.display = 'block';
             passwordInput.value = ''; passwordInput.focus(); return false;
         }
         authForm.addEventListener('submit', e => {
             e.preventDefault();
-            if (validateAuth()) {
-                isModificationLocked = false;
-                updateModifyBtn(); renderCalendar(); hideAuthModal();
-                setStatus(`Accesso autorizzato per ${currentUser.charAt(0).toUpperCase()+currentUser.slice(1)}. Modifica abilitata.`, 'success');
-            }
+            validateAuth().then(ok => {
+                if (ok) {
+                    isModificationLocked = false;
+                    updateModifyBtn(); renderCalendar(); hideAuthModal();
+                    setStatus(`Accesso autorizzato per ${currentUser.charAt(0).toUpperCase()+currentUser.slice(1)}. Modifica abilitata.`, 'success');
+                }
+            });
         });
         cancelAuthBtn.addEventListener('click', hideAuthModal);
         authModal.addEventListener('click', e => { if (e.target === authModal) hideAuthModal(); });
