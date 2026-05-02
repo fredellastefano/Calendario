@@ -16,7 +16,7 @@
             <div class="logo-container">
                 <img src="MaxAndStar.png" alt="Logo" class="logo">
             </div>
-            <div class="title-text">Calendario Interattivo con Note r3.0</div>
+            <div class="title-text">Calendario Interattivo con Note r3.1</div>
             <div class="legend-controls">
                 <div class="legend-row">
                     <span class="legend-btn legend-red">Chiara</span>
@@ -133,13 +133,8 @@
         };
         const userInitials = { chiara: 'C', stefano: 'S', guest: 'G' };
 
-        // --- NEW DATA MANAGEMENT FUNCTIONS ---
+        // --- DATA MANAGEMENT FUNCTIONS ---
 
-        /**
-         * Encodes the database keys for storage by removing hyphens from dates
-         * @param {Object} data 
-         * @returns {Object}
-         */
         function encodeDBForStorage(data) {
             const encoded = {};
             Object.keys(data).forEach(key => {
@@ -149,11 +144,6 @@
             return encoded;
         }
 
-        /**
-         * Decodes the database keys from storage format back to YYYY-MM-DD
-         * @param {Object} encodedData 
-         * @returns {Object}
-         */
         function decodeDBFromStorage(encodedData) {
             const decoded = {};
             Object.keys(encodedData).forEach(key => {
@@ -163,11 +153,6 @@
             return decoded;
         }
 
-        /**
-         * Checks if the data is in an older format (missing specific modern properties)
-         * @param {Array|Object} modifications 
-         * @returns {boolean}
-         */
         function isOldFormat(modifications) {
             if (Array.isArray(modifications)) {
                 return !modifications.every(item => item.hasOwnProperty('modifiedBy'));
@@ -244,7 +229,6 @@
                 
                 dbAvailable = true;
                 if (data?.record?.modifiche) {
-                    // Using decoding logic for hyphenated keys compatibility
                     modifiedDaysDB = decodeDBFromStorage(data.record.modifiche);
                     
                     // Legacy cleanup
@@ -252,8 +236,13 @@
                         const e = modifiedDaysDB[dk];
                         if (e && !e.modifiedBy && e.modified) e.modifiedBy = 'S';
                     });
+
+                    // Calculate record count and data size
+                    const recordCount = Object.keys(modifiedDaysDB).length;
+                    const jsonString = JSON.stringify(data.record.modifiche);
+                    const dataSizeKB = (new TextEncoder().encode(jsonString).length / 1024).toFixed(2);
                     
-                    setStatus('Dati caricati con successo.', 'success');
+                    setStatus(`Dati caricati con successo (${recordCount} record, ${dataSizeKB} KB).`, 'success');
                 } else {
                     modifiedDaysDB = {};
                     setStatus('Dati non trovati.', 'warning');
@@ -272,7 +261,6 @@
             }
             setStatus('Salvataggio...');
             
-            // Compressing keys before storage
             const encodedData = encodeDBForStorage(modifiedDaysDB);
 
             try {
@@ -287,7 +275,9 @@
                 });
                 if (!response.ok) throw new Error(`HTTP ${response.status}`);
                 dbAvailable = true;
-                setStatus('Dati salvati con successo.', 'success');
+                
+                const recordCount = Object.keys(modifiedDaysDB).length;
+                setStatus(`Dati salvati con successo (${recordCount} record).`, 'success');
             } catch (err) {
                 dbAvailable = false;
                 setStatus(`⚠ Errore salvataggio: ${err.message}`, 'error');
@@ -322,14 +312,12 @@
                 const newDB  = {};
                 
                 try {
-                    // Check if format is old or missing required headers
                     const isOld = !header.includes('modified_by') || !header.includes('start_time');
 
                     for (let i = 1; i < rows.length; i++) {
                         const parts = rows[i].split(',');
                         let date = parts[0];
 
-                        // If the CSV date is in compressed format (8 digits), decode it
                         if (/^\d{8}$/.test(date)) {
                             date = date.replace(/(\d{4})(\d{2})(\d{2})/, '$1-$2-$3');
                         }
@@ -442,7 +430,6 @@
 
             let currentWeekNum = getISOWeek(firstDay);
             
-            // Padding cells
             const emptyCells = startDay;
             if (emptyCells > 0) {
                 const wCell = document.createElement('div');
@@ -484,7 +471,6 @@
                 const badge = document.createElement('span');
                 if (dbEntry?.modified && dbEntry?.modifiedBy) {
                     badge.textContent = dbEntry.modifiedBy;
-                    badge.className = 'user-badge-mini'; // Defined in CSS
                     badge.style.cssText = `position:absolute;top:5px;right:5px;font-size:10px;background:var(--user-badge-bg);border-radius:50%;width:16px;height:16px;display:flex;align-items:center;justify-content:center;`;
                 }
 
@@ -553,7 +539,6 @@
             renderCalendar();
         }
 
-        // Note Modal Elements & Logic (Simplified for brevity)
         const noteModal = document.getElementById('note-modal');
         const noteSaveBtn = document.getElementById('note-save-btn');
         const noteCancelBtn = document.getElementById('note-cancel-btn');
