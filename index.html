@@ -1,32 +1,45 @@
-// Function to encode the database for storage in the new compressed format
-function encodeDBForStorage(db) {
-    // Implementation for encoding the database
+// Function to encode database for storage
+function encodeDBForStorage(data) {
+    return data.map(item => item.replace(/\b(\d{4})-(\d{2})-(\d{2})\b/, '$1$2')).join('|');
 }
 
-// Function to decode the database from the storage format
-function decodeDBFromStorage(data) {
-    // Implementation for decoding the database
+// Function to decode database from storage
+function decodeDBFromStorage(encodedData) {
+    return encodedData.split('|').map(item => item.replace(/(\d{4})(\d{2})/, '$1-$2-01'));
 }
 
-// Function to check if the database is in the old format
-function isOldFormat(data) {
-    // Implementation to determine format
+// Function to check if the old format is being used
+function isOldFormat(modifiche) {
+    return !modifiche.every(item => item.hasOwnProperty('newField'));
 }
 
-// Automatic migration function to convert old database format to the new compressed format
-function migrateDBOnLoad(oldDB) {
-    if (isOldFormat(oldDB)) {
-        return decodeDBFromStorage(oldDB);
+// Function to automatically migrate data when loading modifications
+function loadModifications() {
+    const modifiche = loadFromStorage(); // Assuming this retrieves data
+    if (isOldFormat(modifiche)) {
+        // Migrate data to new format
+        const migratedData = modifiche.map(modifica => {
+            // Perform your migration logic here
+            return encodeDBForStorage(modifica);
+        });
+        saveToStorage(migratedData); // Save migrated data
     }
-    return oldDB;
 }
 
-// Updated downloadCSV function to accommodate the new format
-function downloadCSV() {
-    // Implementation to download CSV in the new format
+// Updated saveModifications to save in new compressed format
+function saveModifications(modifiche) {
+    const encodedData = encodeDBForStorage(modifiche);
+    saveToStorage(encodedData);
 }
 
-// Updated uploadCSV function to accommodate the new format
-function uploadCSV(csvData) {
-    // Implementation to upload and convert CSV data to the new format
+// Updated uploadCSV to handle both old and new formats
+function uploadCSV(file) {
+    const data = readFile(file);
+    let modifiche;
+    if (isOldFormat(data)) {
+        modifiche = decodeDBFromStorage(data);
+    } else {
+        modifiche = data;
+    }
+    saveModifications(modifiche);
 }
