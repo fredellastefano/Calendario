@@ -1076,7 +1076,11 @@
                     opts.className = 'day-options';
                     opts.innerHTML = '&hellip;';
                     opts.title = 'Aggiungi/Modifica nota e orario';
-                    opts.addEventListener('click', e => { e.stopPropagation(); showNoteModal(dateKey); });
+                    opts.addEventListener('click', e => {
+                        e.stopPropagation();
+                        if (!requireAuth()) return;
+                        showNoteModal(dateKey);
+                    });
 
                     const weekendMarker = document.createElement('span');
                     if (weekendRules.some(r => r.from === dateKey)) {
