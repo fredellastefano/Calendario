@@ -435,7 +435,7 @@
             <div class="logo-container">
                 <img src="MaxAndStar.png" alt="Logo" class="logo">
             </div>
-            <div class="title-text">Calendario Interattivo con Note r3.3</div>
+            <div class="title-text">Calendario Interattivo con Note r3.4</div>
             <div class="legend-controls">
                 <div class="legend-row">
                     <span class="legend-btn legend-red">Chiara</span>
@@ -586,6 +586,26 @@
         };
         const userInitials = { chiara: 'C', stefano: 'S', guest: 'G' };
 
+        // --- "RICORDAMI" (15 giorni sullo stesso browser) ---
+        const REMEMBER_KEY  = 'cal-remember-me';
+        const REMEMBER_DAYS = 15;
+        function saveRememberMe(user) {
+            try {
+                localStorage.setItem(REMEMBER_KEY, JSON.stringify({
+                    user, expiresAt: Date.now() + REMEMBER_DAYS * 24 * 60 * 60 * 1000
+                }));
+            } catch (e) {}
+        }
+        function getRememberedUser() {
+            try {
+                const raw = localStorage.getItem(REMEMBER_KEY);
+                if (!raw) return null;
+                const data = JSON.parse(raw);
+                if (data && userHashes[data.user] && data.expiresAt > Date.now()) return data.user;
+            } catch (e) {}
+            return null;
+        }
+
         // --- FORMATO DATI SU JSONBIN (chiavi data compatte YYYYMMDD) ---
         function encodeDBForStorage(data) {
             const encoded = {};
@@ -717,6 +737,13 @@
             authError.style.display = 'none'; userSelect.focus();
         }
         function hideAuthModal() { authModal.style.display = 'none'; }
+        function requireAuth() {
+            if (isModificationLocked || !currentUser) {
+                setStatus("Sblocca la modifica (accedi con utente e password) per questa azione.", 'warning');
+                return false;
+            }
+            return true;
+        }
         async function validateAuth() {
             const sel = userSelect.value, pwd = passwordInput.value;
             if (!sel) { authError.textContent='Seleziona un utente!'; authError.style.display='block'; return false; }
@@ -730,6 +757,7 @@
             validateAuth().then(ok => {
                 if (ok) {
                     isModificationLocked = false;
+                    saveRememberMe(currentUser);
                     updateModifyBtn(); renderCalendar(); hideAuthModal();
                     setStatus(`Accesso autorizzato per ${currentUser.charAt(0).toUpperCase()+currentUser.slice(1)}. Modifica abilitata.`, 'success');
                 }
@@ -768,8 +796,12 @@
         }
         function hideNoteModal() { noteModal.style.display = 'none'; activeNoteDate = null; }
 
-        noteSaveBtn.addEventListener('click', () => { saveNote(activeNoteDate); hideNoteModal(); });
+        noteSaveBtn.addEventListener('click', () => {
+            if (!requireAuth()) return;
+            saveNote(activeNoteDate); hideNoteModal();
+        });
         noteGcalBtn.addEventListener('click', () => {
+            if (!requireAuth()) return;
             saveNote(activeNoteDate);
             const e = modifiedDaysDB[activeNoteDate];
             openExternalLink(buildGCalUrl(activeNoteDate, e?.note||'Impegno', e?.startTime||'', e?.endTime||''));
@@ -782,6 +814,7 @@
         });
         noteDeleteBtn.addEventListener('click', () => {
             if (!activeNoteDate) return;
+            if (!requireAuth()) return;
             if (modifiedDaysDB[activeNoteDate]) {
                 modifiedDaysDB[activeNoteDate].note = '';
                 delete modifiedDaysDB[activeNoteDate].startTime;
@@ -933,11 +966,20 @@
             yearSelect.addEventListener('change',  renderCalendar);
             prevMonthBtn.addEventListener('click', goToPrevMonth);
             nextMonthBtn.addEventListener('click', goToNextMonth);
-            downloadBtn.addEventListener('click', downloadCSV);
-            uploadBtn.addEventListener('click', () => uploadInput.click());
+            downloadBtn.addEventListener('click', () => { if (requireAuth()) downloadCSV(); });
+            uploadBtn.addEventListener('click', () => { if (requireAuth()) uploadInput.click(); });
             uploadInput.addEventListener('change', uploadCSV);
             modifyBtn.addEventListener('click', toggleLock);
-            loadModifications().finally(() => { renderCalendar(); updateModifyBtn(); });
+
+            const remembered = getRememberedUser();
+            if (remembered) { currentUser = remembered; isModificationLocked = false; }
+
+            loadModifications().finally(() => {
+                renderCalendar(); updateModifyBtn();
+                if (remembered) {
+                    setStatus(`Accesso automatico per ${remembered.charAt(0).toUpperCase()+remembered.slice(1)} (ricordato su questo browser).`, 'success');
+                }
+            });
         });
 
         function populateSelects(cm, cy) {
