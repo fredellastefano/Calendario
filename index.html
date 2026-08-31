@@ -585,8 +585,13 @@
             if (t) { const [hh,mm] = t.split(':'); return `${y}${m}${d}T${hh}${mm}00`; }
             return `${y}${m}${d}`;
         }
+        function openExternalLink(url) {
+            const a = document.createElement('a');
+            a.href = url; a.target = '_blank'; a.rel = 'noopener noreferrer';
+            document.body.appendChild(a); a.click(); a.remove();
+        }
         function buildGCalUrl(dateKey, title, st, et) {
-            const base = 'https://calendar.google.com/calendar/render?action=TEMPLATE';
+            const base = 'https://calendar.google.com/calendar/r/eventedit';
             const enc  = encodeURIComponent(title || 'Impegno');
             let dates;
             if (st) {
@@ -600,7 +605,7 @@
                 const nd = new Date(y,m-1,d+1);
                 dates = `${y}${String(m).padStart(2,'0')}${String(d).padStart(2,'0')}/${nd.getFullYear()}${String(nd.getMonth()+1).padStart(2,'0')}${String(nd.getDate()).padStart(2,'0')}`;
             }
-            return `${base}&text=${enc}&dates=${dates}`;
+            return `${base}?text=${enc}&dates=${dates}`;
         }
 
         // --- AUTH MODAL ---
@@ -672,13 +677,13 @@
         noteGcalBtn.addEventListener('click', () => {
             saveNote(activeNoteDate);
             const e = modifiedDaysDB[activeNoteDate];
-            window.open(buildGCalUrl(activeNoteDate, e?.note||'Impegno', e?.startTime||'', e?.endTime||''), '_blank');
+            openExternalLink(buildGCalUrl(activeNoteDate, e?.note||'Impegno', e?.startTime||'', e?.endTime||''));
             hideNoteModal();
         });
         noteGcalDeleteBtn.addEventListener('click', () => {
             if (!activeNoteDate) return;
             const [y,m,d] = activeNoteDate.split('-');
-            window.open(`https://calendar.google.com/calendar/r/day/${y}/${parseInt(m)}/${parseInt(d)}`, '_blank');
+            openExternalLink(`https://calendar.google.com/calendar/r/day/${y}/${parseInt(m)}/${parseInt(d)}`);
         });
         noteDeleteBtn.addEventListener('click', () => {
             if (!activeNoteDate) return;
