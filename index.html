@@ -126,6 +126,13 @@
             color: var(--text-primary); letter-spacing: -0.01em; line-height: 1.2;
             padding: 0 12px; text-shadow: 0 0 40px var(--accent-shadow); transition: color 0.3s;
         }
+        .version-tag {
+            display: block; text-align: center;
+            font-family: 'DM Mono', monospace;
+            font-size: clamp(9px, 1.4vw, 12px); font-weight: 500;
+            color: var(--text-secondary); letter-spacing: 0.02em;
+            text-shadow: none; margin-top: 2px;
+        }
 
         .legend-controls {
             display: flex; flex-direction: column; gap: 8px;
@@ -435,7 +442,7 @@
             <div class="logo-container">
                 <img src="MaxAndStar.png" alt="Logo" class="logo">
             </div>
-            <div class="title-text">Calendario Interattivo con Note r3.4</div>
+            <div class="title-text">Calendario Interattivo con Note<span class="version-tag">r3.4</span></div>
             <div class="legend-controls">
                 <div class="legend-row">
                     <span class="legend-btn legend-red">Chiara</span>
