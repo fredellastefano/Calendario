@@ -377,6 +377,24 @@
         .note-btn-delete:hover { opacity: 0.8; }
         .note-btn-gcal-delete       { background-color: var(--warning-bg); color: var(--warning-text); border-color: var(--warning-border); }
         .note-btn-gcal-delete:hover { opacity: 0.8; transform: translateY(-1px); }
+        .note-btn-weekend       { background-color: rgba(155,89,182,0.10); color: #9b59b6; border-color: rgba(155,89,182,0.30); width: 100%; }
+        .note-btn-weekend:hover { opacity: 0.8; transform: translateY(-1px); }
+        .note-btn-weekend-red       { background-color: rgba(231,76,60,0.10); color: #e74c3c; border-color: rgba(231,76,60,0.30); }
+        .note-btn-weekend-red:hover { opacity: 0.8; transform: translateY(-1px); }
+        .note-btn-weekend-yellow       { background-color: rgba(241,196,15,0.12); color: #b8960c; border-color: rgba(241,196,15,0.35); }
+        .note-btn-weekend-yellow:hover { opacity: 0.8; transform: translateY(-1px); }
+        [data-theme="dark"] .note-btn-weekend-yellow { color: #f1c40f; }
+        .weekend-rule-row {
+            display: flex; align-items: center; justify-content: space-between;
+            font-family: 'DM Mono', monospace; font-size: 12px; color: var(--text-secondary);
+            padding: 6px 4px; border-bottom: 1px solid var(--border);
+        }
+        .weekend-rule-row:last-child { border-bottom: none; }
+        .weekend-rule-del {
+            background: none; border: none; cursor: pointer; font-size: 13px;
+            color: var(--error-text); padding: 2px 6px; border-radius: 4px;
+        }
+        .weekend-rule-del:hover { background-color: var(--error-bg); }
         .gcal-hint {
             font-family: 'DM Mono', monospace; font-size: clamp(10px, 1.6vw, 11px);
             color: var(--text-muted); text-align: center; margin-top: 12px;
@@ -503,10 +521,40 @@
                 <button class="note-btn note-btn-gcal-delete" id="note-gcal-delete-btn">🗓️ Elimina su Google Calendar</button>
                 <button class="note-btn note-btn-cancel" id="note-cancel-btn">Annulla</button>
             </div>
+            <div class="note-buttons" style="margin-top: 8px;">
+                <button class="note-btn note-btn-weekend" id="note-weekend-btn" title="Cambia alternanza weekend">🔀 Cambia alternanza weekend</button>
+            </div>
             <p class="gcal-hint">
                 "Aggiungi a Google Calendar" apre Google Calendar con l'evento precompilato. Ricorda di salvarlo anche qui con "Salva".<br>
                 "Elimina su Google Calendar" apre la vista del giorno su Google Calendar per eliminare l'evento manualmente.
             </p>
+        </div>
+    </div>
+
+    <!-- MODAL ALTERNANZA WEEKEND -->
+    <div id="weekend-rule-modal" class="note-modal">
+        <div class="note-modal-content">
+            <h2>🔀 Cambia alternanza weekend</h2>
+            <p class="gcal-hint">
+                Imposta da quale data in poi cambiare il colore di venerdì/sabato/domenica
+                (utile al rientro dalle vacanze di Natale o estive). I giorni feriali (Lun–Gio)
+                non sono influenzati.
+            </p>
+            <div class="note-form-group">
+                <label for="weekend-rule-date">A partire dal</label>
+                <input type="date" id="weekend-rule-date">
+            </div>
+            <div class="note-form-group">
+                <label>Colore del weekend da quella data</label>
+                <div class="note-buttons">
+                    <button type="button" class="note-btn note-btn-weekend-red" id="weekend-rule-red">🔴 Rosso (Chiara)</button>
+                    <button type="button" class="note-btn note-btn-weekend-yellow" id="weekend-rule-yellow">🟡 Giallo (Stefano)</button>
+                </div>
+            </div>
+            <div id="weekend-rule-list"></div>
+            <div class="note-buttons" style="margin-top: 8px;">
+                <button class="note-btn note-btn-cancel" id="weekend-rule-cancel-btn">Chiudi</button>
+            </div>
         </div>
     </div>
 
@@ -519,6 +567,7 @@
         let currentUser          = null;
         let activeNoteDate       = null;
         let dbAvailable          = true;
+        let weekendRules         = [];
 
         const debugStatusEl  = document.getElementById('debug-status');
         const htmlEl         = document.documentElement;
@@ -561,12 +610,33 @@
             return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
         }
 
+        // --- ALTERNANZA WEEKEND (con regole personalizzabili da una certa data) ---
+        function dateToKey(date) {
+            return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
+        }
+        function getWeekendColorForDate(date) {
+            const dateKey = dateToKey(date);
+            const parity  = (getISOWeek(date) % 2 === 0) ? 'even' : 'odd';
+            let evenColor = 'red'; // alternanza storica di default (nessuna regola attiva)
+            const applicable = weekendRules.filter(r => r.from <= dateKey);
+            if (applicable.length) {
+                applicable.sort((a, b) => (a.from < b.from ? -1 : 1));
+                evenColor = applicable[applicable.length - 1].evenWeekColor;
+            }
+            return parity === 'even' ? evenColor : (evenColor === 'red' ? 'yellow' : 'red');
+        }
+        function computeEvenWeekColorForRule(fromDateStr, desiredColor) {
+            const [y, m, d] = fromDateStr.split('-').map(Number);
+            const parity = (getISOWeek(new Date(y, m - 1, d)) % 2 === 0) ? 'even' : 'odd';
+            return parity === 'even' ? desiredColor : (desiredColor === 'red' ? 'yellow' : 'red');
+        }
+
         // --- TEMA ---
         function getTodayDefaultColor() {
             const today = new Date(), dow = today.getDay();
             if (dow === 1 || dow === 2) return 'yellow';
             if (dow === 3 || dow === 4) return 'red';
-            return (getISOWeek(today) % 2 === 0) ? 'red' : 'yellow';
+            return getWeekendColorForDate(today);
         }
         function applyTheme(theme) {
             htmlEl.setAttribute('data-theme', theme);
@@ -716,8 +786,67 @@
         noteCancelBtn.addEventListener('click', hideNoteModal);
         noteModal.addEventListener('click', e => { if (e.target === noteModal) hideNoteModal(); });
 
+        // --- MODAL ALTERNANZA WEEKEND ---
+        const weekendRuleModal     = document.getElementById('weekend-rule-modal');
+        const weekendRuleDateInput = document.getElementById('weekend-rule-date');
+        const weekendRuleListEl    = document.getElementById('weekend-rule-list');
+        const noteWeekendBtn       = document.getElementById('note-weekend-btn');
+        const weekendRuleRedBtn    = document.getElementById('weekend-rule-red');
+        const weekendRuleYellowBtn = document.getElementById('weekend-rule-yellow');
+        const weekendRuleCancelBtn = document.getElementById('weekend-rule-cancel-btn');
+
+        function refreshWeekendRuleList() {
+            if (!weekendRules.length) {
+                weekendRuleListEl.innerHTML = '<p class="gcal-hint">Nessuna regola impostata: alternanza storica attiva su tutto il calendario.</p>';
+                return;
+            }
+            const sorted = [...weekendRules].sort((a, b) => (a.from < b.from ? 1 : -1));
+            weekendRuleListEl.innerHTML = sorted.map(r => `
+                <div class="weekend-rule-row">
+                    <span>Dal <strong>${r.from}</strong>: weekend pari = ${r.evenWeekColor === 'red' ? '🔴 Rosso' : '🟡 Giallo'}</span>
+                    <button type="button" class="weekend-rule-del" data-from="${r.from}" title="Elimina regola">🗑️</button>
+                </div>`).join('');
+            weekendRuleListEl.querySelectorAll('.weekend-rule-del').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    weekendRules = weekendRules.filter(r => r.from !== btn.dataset.from);
+                    saveModifications(); renderCalendar(); refreshWeekendRuleList();
+                });
+            });
+        }
+
+        function showWeekendRuleModal(prefillDate) {
+            if (isModificationLocked || !currentUser) {
+                setStatus("Sblocca la modifica per cambiare l'alternanza weekend.", 'warning');
+                return;
+            }
+            weekendRuleDateInput.value = prefillDate || todayStr;
+            refreshWeekendRuleList();
+            weekendRuleModal.style.display = 'block';
+        }
+        function hideWeekendRuleModal() { weekendRuleModal.style.display = 'none'; }
+
+        function applyWeekendRule(desiredColor) {
+            const fromDateStr = weekendRuleDateInput.value;
+            if (!fromDateStr) { setStatus('Seleziona una data per la nuova regola.', 'warning'); return; }
+            const evenWeekColor = computeEvenWeekColorForRule(fromDateStr, desiredColor);
+            weekendRules = weekendRules.filter(r => r.from !== fromDateStr);
+            weekendRules.push({ from: fromDateStr, evenWeekColor });
+            saveModifications(); renderCalendar(); refreshWeekendRuleList();
+            setStatus(`Alternanza weekend aggiornata dal ${fromDateStr}.`, 'success');
+        }
+
+        noteWeekendBtn.addEventListener('click', () => {
+            const prefillDate = activeNoteDate;
+            hideNoteModal();
+            showWeekendRuleModal(prefillDate);
+        });
+        weekendRuleRedBtn.addEventListener('click', () => applyWeekendRule('red'));
+        weekendRuleYellowBtn.addEventListener('click', () => applyWeekendRule('yellow'));
+        weekendRuleCancelBtn.addEventListener('click', hideWeekendRuleModal);
+        weekendRuleModal.addEventListener('click', e => { if (e.target === weekendRuleModal) hideWeekendRuleModal(); });
+
         document.addEventListener('keydown', e => {
-            if (e.key === 'Escape') { hideAuthModal(); hideNoteModal(); }
+            if (e.key === 'Escape') { hideAuthModal(); hideNoteModal(); hideWeekendRuleModal(); }
         });
 
         function saveNote(dateKey) {
@@ -741,6 +870,7 @@
                 .then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
                 .then(data => {
                     dbAvailable = true;
+                    weekendRules = Array.isArray(data?.record?.regoleWeekend) ? data.record.regoleWeekend : [];
                     if (data?.record?.modifiche) {
                         modifiedDaysDB = decodeDBFromStorage(data.record.modifiche);
                         Object.keys(modifiedDaysDB).forEach(dk => {
@@ -766,7 +896,7 @@
             fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json', 'X-Access-Key': SECRET_KEY, 'X-Bin-Private': 'false' },
-                body: JSON.stringify({ modifiche: encodedData })
+                body: JSON.stringify({ modifiche: encodedData, regoleWeekend: weekendRules })
             })
             .then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
             .then(() => {
@@ -913,7 +1043,7 @@
             const dow = date.getDay();
             if (dow === 1 || dow === 2) return 'yellow';
             if (dow === 3 || dow === 4) return 'red';
-            return (getISOWeek(date) % 2 === 0) ? 'red' : 'yellow';
+            return getWeekendColorForDate(date);
         }
 
         function toggleLock() {
